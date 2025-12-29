@@ -96,6 +96,45 @@
             );
         };
 
+        // --- NEW COMPONENT: Video Player Modal ---
+        const VideoModal = ({ videoId, onClose }) => {
+            if (!videoId) return null;
+
+            return (
+                <div 
+                    className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-xl p-4 md:p-8 animate-fade-in" 
+                    onClick={onClose}
+                >
+                    <div 
+                        className="relative w-full max-w-6xl aspect-video bg-black rounded-3xl overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.8)]" 
+                        onClick={e => e.stopPropagation()}
+                    >
+                        
+                        {/* Loading Spinner underneath iframe */}
+                        <div className="absolute inset-0 flex items-center justify-center z-0">
+                            <div className="w-10 h-10 border-4 border-white/10 border-t-amber-500 rounded-full animate-spin"></div>
+                        </div>
+
+                        {/* Close Button */}
+                        <button 
+                            onClick={onClose}
+                            className="absolute top-6 right-6 z-50 p-3 bg-black/60 hover:bg-amber-500 backdrop-blur-md rounded-full text-white transition-all transform hover:rotate-90 hover:scale-110 border border-white/10"
+                        >
+                            <X size={24} />
+                        </button>
+                        
+                        <iframe 
+                            src={`https://drive.google.com/file/d/${videoId}/preview`}
+                            className="absolute inset-0 w-full h-full z-10"
+                            allow="autoplay; encrypted-media; fullscreen"
+                            allowFullScreen
+                            title="Project Video"
+                        ></iframe>
+                    </div>
+                </div>
+            );
+        };
+
         // --- ADVANCED COMPONENT: Neural Network Background ---
         const NeuralBackground = () => {
             const canvasRef = useRef(null);
@@ -180,50 +219,6 @@
             }, []);
 
             return <canvas ref={canvasRef} className="fixed inset-0 z-0 opacity-40 pointer-events-none" />;
-        };
-
-        // --- ADVANCED COMPONENT: Glitch Text Effect ---
-        const GlitchText = ({ text }) => {
-            return (
-                <div className="glitch-wrapper inline-block relative">
-                <span className="glitch-text text-amber-500 font-black relative z-10 block" data-text={text}>
-                    {text}
-                </span>
-                <style>{`
-                    .glitch-text::before,
-                    .glitch-text::after {
-                    content: attr(data-text);
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: #050505;
-                    }
-                    .glitch-text::before {
-                    left: 2px;
-                    text-shadow: -1px 0 #ff00c1;
-                    clip: rect(44px, 450px, 56px, 0);
-                    animation: glitch-anim 5s infinite linear alternate-reverse;
-                    }
-                    .glitch-text::after {
-                    left: -2px;
-                    text-shadow: -1px 0 #00fff9;
-                    clip: rect(44px, 450px, 56px, 0);
-                    animation: glitch-anim2 5s infinite linear alternate-reverse;
-                    }
-                    @keyframes glitch-anim {
-                    0% { clip: rect(13px, 9999px, 88px, 0); }
-                    5% { clip: rect(82px, 9999px, 92px, 0); }
-                    100% { clip: rect(2px, 9999px, 1px, 0); }
-                    }
-                    @keyframes glitch-anim2 {
-                    0% { clip: rect(65px, 9999px, 100px, 0); }
-                    100% { clip: rect(22px, 9999px, 76px, 0); }
-                    }
-                `}</style>
-                </div>
-            );
         };
 
         // --- COMPONENT: Pixel Phone Mockup with Animation ---
@@ -480,64 +475,14 @@
                 { id: "1Z_CPiJNhfUF1Ts99ztYVwFKjkYxFU0tD", title: "Project Showcase 10", category: "Reel" },
             ], []);
 
-             // --- GENERATE 50 REALISTIC REVIEWS WITH GENDER MATCHING ---
-            const reviews = useMemo(() => {
-                const roles = [
-                    "Content Creator", "Fitness Coach", "Marketing Director", "Small Business Owner", "Tech Reviewer",
-                    "Lifestyle Vlogger", "Startup Founder", "Social Media Manager", "E-commerce Owner", "Travel Vlogger",
-                    "Real Estate Agent", "Digital Marketer", "Brand Strategist", "Educational Creator", "Podcast Host",
-                    "Gaming Streamer", "Creative Director", "Agency Owner", "Freelancer", "Music Producer"
-                ];
-
-                const comments = [
-                    "The pacing is unmatched. My retention skyrocketed.",
-                    "Absolutely transformed my raw footage into gold.",
-                    "Fast delivery and incredible attention to detail.",
-                    "Understood the assignment perfectly. Will hire again.",
-                    "The visual effects added so much value to the video.",
-                    "Professional, creative, and easy to work with.",
-                    "My audience engagement doubled after one video.",
-                    "Saved me hours of editing time. Worth every penny.",
-                    "The sound design is on another level.",
-                    "Captures the vibe exactly how I imagined it.",
-                    "Great communication throughout the entire process.",
-                    "A true master of storytelling through editing.",
-                    "The transitions are smooth and keep viewers hooked.",
-                    "Highly recommended for any serious creator.",
-                    "Turned a boring topic into an exciting video.",
-                    "Best editor I've worked with in years.",
-                    "My channel grew by 50k subs thanks to these edits.",
-                    "Incredible storytelling ability. Just wow.",
-                    "Super reliable and always meets deadlines.",
-                    "The shorts you made went viral instantly!"
-                ];
-
-                const maleNames = ["James", "Michael", "Robert", "John", "David", "William", "Richard", "Joseph", "Thomas", "Charles", "Christopher", "Daniel", "Matthew", "Anthony", "Mark", "Donald", "Steven", "Paul", "Andrew", "Joshua", "Kenneth", "Kevin", "Brian", "George", "Edward"];
-                const femaleNames = ["Mary", "Patricia", "Jennifer", "Linda", "Elizabeth", "Barbara", "Susan", "Jessica", "Sarah", "Karen", "Nancy", "Lisa", "Betty", "Margaret", "Sandra", "Ashley", "Kimberly", "Emily", "Donna", "Michelle", "Dorothy", "Carol", "Amanda", "Melissa", "Deborah"];
-                const lastNames = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson", "Thomas", "Taylor", "Moore", "Jackson", "Martin", "Lee", "Perez", "Thompson", "White", "Harris"];
-
-                return Array.from({ length: 50 }, (_, i) => {
-                    const isMale = i % 2 === 0;
-                    const firstName = isMale ? maleNames[i % maleNames.length] : femaleNames[i % femaleNames.length];
-                    const lastName = lastNames[i % lastNames.length];
-                    const gender = isMale ? 'men' : 'women';
-                    // Randomuser has roughly 0-99 portraits for each gender. Use unique indices.
-                    const photoId = (i % 90); 
-                    
-                    return {
-                        name: `${firstName} ${lastName}`,
-                        role: roles[i % roles.length],
-                        text: comments[i % comments.length],
-                        image: `https://randomuser.me/api/portraits/${gender}/${photoId}.jpg`
-                    };
-                });
-            }, []);
-
             return (
                 <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-amber-500 selection:text-black overflow-x-hidden relative cursor-none">
                 
                 {/* 0. Custom Cursor */}
                 <CustomCursor />
+
+                {/* VIDEO MODAL OVERLAY */}
+                {selectedVideo && <VideoModal videoId={selectedVideo} onClose={() => setSelectedVideo(null)} />}
 
                 {/* 1. Neural Network Background */}
                 <NeuralBackground />
@@ -553,9 +498,9 @@
                         KAVEESHA<span className="text-amber-500 text-3xl leading-[0]">.</span>
                         </div>
 
-                        {/* Desktop Nav */}
+                        {/* Desktop Nav - "REVIEWS" REMOVED */}
                         <div className="hidden md:flex items-center gap-1 bg-white/5 p-1 rounded-full border border-white/5 backdrop-blur-md">
-                        {['Work', 'About', 'Why Me', 'Reviews', 'Services', 'Contact'].map((item) => (
+                        {['Work', 'About', 'Why Me', 'Services', 'Contact'].map((item) => (
                             <button 
                             key={item}
                             onClick={() => scrollToSection(item === 'Services' ? 'work' : item.toLowerCase().replace(' ', '-'))}
@@ -581,10 +526,10 @@
                     </div>
                 </nav>
 
-                {/* Mobile Menu Overlay */}
+                {/* Mobile Menu Overlay - "REVIEWS" REMOVED */}
                 {isMenuOpen && (
                     <div className="fixed inset-0 z-30 bg-black/98 backdrop-blur-xl pt-32 px-6 md:hidden flex flex-col items-center gap-8">
-                    {['Work', 'About', 'Why Me', 'Reviews', 'Services', 'FAQ', 'Contact'].map((item) => (
+                    {['Work', 'About', 'Why Me', 'Services', 'FAQ', 'Contact'].map((item) => (
                         <button 
                         key={item}
                         onClick={() => scrollToSection(item === 'Services' ? 'work' : item.toLowerCase().replace(' ', '-'))}
@@ -636,11 +581,11 @@
                             Stop the scroll. Own the attention. I architect <span className="text-white font-bold border-b border-amber-500/50">high-retention</span> video assets that dominate the algorithm.
                         </p>
 
-                        {/* Social Proof / Trust Bar */}
+                        {/* Social Proof / Trust Bar - UPDATED TO 100+ PROJECTS */}
                         <div className="flex flex-wrap justify-center gap-6 md:gap-12 mb-14 text-zinc-500">
                             <div className="flex items-center gap-2">
                                 <Trophy size={18} className="text-amber-500" />
-                                <span className="text-sm font-bold uppercase tracking-wider text-white">150+ <span className="text-zinc-500 font-normal normal-case">Projects</span></span>
+                                <span className="text-sm font-bold uppercase tracking-wider text-white">100+ <span className="text-zinc-500 font-normal normal-case">Projects</span></span>
                             </div>
                             <div className="w-px h-6 bg-white/10 hidden md:block"></div>
                             <div className="flex items-center gap-2">
@@ -730,14 +675,14 @@
                                         I operate at the intersection of creativity and technical precision. As a QC Supervisor at <strong className="text-white">Zaan Digital</strong>, my eyes are trained to spot the micro-imperfections that kill retention. I don't just edit; I engineer content for the algorithmic age, ensuring every frame earns its place.
                                     </p>
 
-                                    {/* Stats Grid */}
+                                    {/* Stats Grid - UPDATED TO 3+ YEARS */}
                                     <div className="grid grid-cols-3 gap-6 mb-10">
                                         <div className="bg-black/40 rounded-2xl p-4 border border-white/5 hover:border-amber-500/30 transition-colors">
-                                            <div className="text-3xl md:text-4xl font-black text-white mb-1">5+</div>
+                                            <div className="text-3xl md:text-4xl font-black text-white mb-1">3+</div>
                                             <div className="text-[10px] md:text-xs text-zinc-500 uppercase font-bold tracking-wider">Years Experience</div>
                                         </div>
                                         <div className="bg-black/40 rounded-2xl p-4 border border-white/5 hover:border-amber-500/30 transition-colors">
-                                            <div className="text-3xl md:text-4xl font-black text-white mb-1">150+</div>
+                                            <div className="text-3xl md:text-4xl font-black text-white mb-1">100+</div>
                                             <div className="text-[10px] md:text-xs text-zinc-500 uppercase font-bold tracking-wider">Projects Done</div>
                                         </div>
                                         <div className="bg-black/40 rounded-2xl p-4 border border-white/5 hover:border-amber-500/30 transition-colors">
@@ -845,16 +790,20 @@
                             {/* Content Container */}
                             <div className="relative w-full h-full bg-zinc-900 overflow-hidden rounded-lg">
                                 
-                                {/* Standard Video Layout */}
+                                {/* UPDATED: Better Thumbnail Logic & Fallback */}
                                 <img 
-                                    src={`https://drive.google.com/thumbnail?id=${project.id}&sz=w800`}
+                                    src={`https://drive.google.com/thumbnail?id=${project.id}&sz=w1024`}
                                     alt={project.title}
                                     loading="lazy"
                                     className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 ease-out"
                                     onError={(e) => {
+                                        // Hide broken image
                                         e.target.style.display = 'none'; 
+                                        // Add a gradient fallback to parent
+                                        e.target.parentNode.style.background = 'linear-gradient(135deg, #18181b 0%, #27272a 100%)';
                                     }}
                                 />
+                                
                                 {/* Dark Gradient Overlay */}
                                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-90 group-hover:opacity-60 transition-opacity duration-500"></div>
 
@@ -878,73 +827,7 @@
                     </div>
                 </section>
 
-                {/* 6. NEW: Client Reviews Section (Horizontal Scrolling) */}
-                <section id="reviews" className="py-24 border-y border-white/5 relative bg-[#080808] overflow-hidden">
-                    {/* Background decoration */}
-                    <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-amber-500/5 to-transparent pointer-events-none z-10"></div>
-                    <div className="absolute top-0 left-0 w-1/3 h-full bg-gradient-to-r from-[#080808] to-transparent pointer-events-none z-10"></div>
-
-                    <div className="relative z-10">
-                        <div className="max-w-7xl mx-auto px-6 mb-16 text-center">
-                            <h2 className="text-5xl md:text-8xl font-black tracking-tighter mb-4">
-                                CLIENT <span className="text-amber-500">WORDS.</span>
-                            </h2>
-                            <p className="text-zinc-400 max-w-xl mx-auto text-lg">
-                                Real results from creators and brands who trusted the process.
-                            </p>
-                        </div>
-
-                        {/* Scrolling Container */}
-                        <div className="flex w-full overflow-hidden">
-                            <div className="flex gap-6 animate-scroll hover:[animation-play-state:paused] py-4">
-                                {/* Duplicate array to create seamless loop effect */}
-                                {[...reviews, ...reviews].map((review, i) => (
-                                    <div 
-                                        key={i} 
-                                        className="group relative flex-shrink-0 w-[400px] p-8 rounded-3xl bg-zinc-900/50 border border-white/5 hover:border-amber-500/30 transition-all duration-300 hover:-translate-y-1"
-                                    >
-                                        {/* Quote Icon */}
-                                        <div className="absolute top-6 right-6 opacity-10 group-hover:opacity-20 transition-opacity">
-                                            <Quote size={48} className="text-amber-500 transform rotate-180" />
-                                        </div>
-
-                                        {/* Stars */}
-                                        <div className="flex gap-1 mb-5">
-                                            {[...Array(5)].map((_, i) => (
-                                                <Star key={i} size={14} className="text-amber-500 fill-amber-500" />
-                                            ))}
-                                        </div>
-
-                                        {/* Text */}
-                                        <p className="text-zinc-300 text-base leading-relaxed mb-8 relative z-10 font-light h-20 overflow-hidden">
-                                            "{review.text}"
-                                        </p>
-
-                                        {/* Author Info */}
-                                        <div className="flex items-center gap-4 mt-auto">
-                                            {/* Real Photo Placeholder */}
-                                            <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-zinc-700 group-hover:border-amber-500 transition-colors">
-                                                <img 
-                                                    src={review.image} 
-                                                    alt={review.name}
-                                                    className="w-full h-full object-cover"
-                                                    loading="lazy"
-                                                />
-                                            </div>
-                                            <div>
-                                                <h4 className="font-bold text-white text-sm">{review.name}</h4>
-                                                <span className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold block mt-0.5">{review.role}</span>
-                                            </div>
-                                        </div>
-                                        
-                                        {/* Glow Effect on Hover */}
-                                        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-amber-500/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                </section>
+                {/* 6. REVIEWS SECTION REMOVED */}
 
                 {/* 7. Cleaned Contact Section with WhatsApp */}
                 <section id="contact" className="py-32 px-6 bg-[#050505] relative overflow-hidden">
