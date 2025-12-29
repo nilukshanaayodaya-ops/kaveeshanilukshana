@@ -39,17 +39,78 @@
         .font-space {
             font-family: 'Space Grotesk', sans-serif;
         }
-        /* Hide scrollbar for Chrome, Safari and Opera */
-        ::-webkit-scrollbar {
-            display: none;
+        /* Hide scrollbar */
+        ::-webkit-scrollbar { display: none; }
+        html { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* --- MAX ANIMATIONS --- */
+        
+        /* 1. Liquid Flow (Existing but faster) */
+        @keyframes liquid-flow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
-        /* Hide scrollbar for IE, Edge and Firefox */
-        html {
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;  /* Firefox */
+        
+        /* 2. Holographic Glitch */
+        @keyframes holo-glitch {
+            0% { opacity: 0; transform: skewX(0deg); }
+            5% { opacity: 0.5; transform: skewX(-10deg); filter: hue-rotate(90deg); }
+            10% { opacity: 0; transform: skewX(10deg); }
+            15% { opacity: 0.5; transform: skewX(-5deg); filter: hue-rotate(180deg); }
+            20% { opacity: 0; transform: skewX(0deg); }
+            100% { opacity: 0; }
         }
-        .hero-glow {
-            background: radial-gradient(circle at center, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
+
+        /* 3. God Rays Rotation */
+        @keyframes god-rays-rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .text-liquid-gold {
+            background: linear-gradient(90deg, #f59e0b 0%, #fcd34d 25%, #ffffff 50%, #fcd34d 75%, #f59e0b 100%);
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: liquid-flow 3s linear infinite;
+        }
+
+        .text-liquid-silver {
+            background: linear-gradient(90deg, #e4e4e7 0%, #ffffff 25%, #a1a1aa 50%, #ffffff 75%, #e4e4e7 100%);
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: liquid-flow 6s linear infinite;
+        }
+
+        .holo-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(45deg, transparent 40%, rgba(0, 255, 255, 0.4) 45%, rgba(255, 0, 255, 0.4) 50%, transparent 55%);
+            mix-blend-mode: color-dodge;
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .group:hover .holo-overlay {
+            animation: holo-glitch 2s infinite linear;
+        }
+
+        /* God Ray Beams */
+        .god-ray {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 200%; height: 200%;
+            background: conic-gradient(from 0deg, transparent 0deg, rgba(245, 158, 11, 0.05) 20deg, transparent 40deg, rgba(245, 158, 11, 0.05) 60deg, transparent 80deg);
+            transform-origin: center;
+            animation: god-rays-rotate 20s linear infinite;
+            pointer-events: none;
+            mix-blend-mode: screen;
+            z-index: -1;
+            translate: -50% -50%;
         }
     </style>
 </head>
@@ -63,11 +124,10 @@
             Play, Zap, CheckCircle2, Linkedin, Instagram, Twitter, Mail, 
             MessageCircle, Menu, X, ArrowRight, TrendingUp, Activity, 
             Sparkles, MousePointer2, Clock, Smartphone, Wifi, Send, 
-            BarChart3, Users, Quote, Star, Eye, Scissors, MonitorPlay, 
-            Music, Palette, Layers, Lightbulb, Trophy, Flame
+            BarChart3, Users, Trophy, Flame
         } from 'lucide-react';
 
-        // --- ADVANCED COMPONENT: Custom Magnetic Cursor ---
+        // --- COMPONENT: Custom Magnetic Cursor ---
         const CustomCursor = () => {
             const cursorRef = useRef(null);
             const followerRef = useRef(null);
@@ -83,344 +143,165 @@
                         }, 50);
                     }
                 };
-                
                 window.addEventListener('mousemove', moveCursor);
                 return () => window.removeEventListener('mousemove', moveCursor);
             }, []);
 
             return (
                 <React.Fragment>
-                    <div ref={cursorRef} className="fixed top-0 left-0 w-3 h-3 bg-amber-500 rounded-full pointer-events-none z-[100] mix-blend-difference -translate-x-1/2 -translate-y-1/2 transition-transform duration-75 ease-out hidden md:block" />
+                    <div ref={cursorRef} className="fixed top-0 left-0 w-3 h-3 bg-amber-500 rounded-full pointer-events-none z-[100] mix-blend-difference -translate-x-1/2 -translate-y-1/2 hidden md:block" />
                     <div ref={followerRef} className="fixed top-0 left-0 w-8 h-8 border border-amber-500/50 rounded-full pointer-events-none z-[99] -translate-x-1/2 -translate-y-1/2 transition-transform duration-300 ease-out hidden md:block" />
                 </React.Fragment>
             );
         };
 
-        // --- NEW COMPONENT: Video Player Modal ---
-        const VideoModal = ({ videoId, onClose }) => {
-            if (!videoId) return null;
+        // --- COMPONENT: Hacker Scramble Text ---
+        const HackerText = ({ text, className }) => {
+            const [displayText, setDisplayText] = useState(text);
+            const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+";
+            const intervalRef = useRef(null);
+
+            const handleMouseOver = () => {
+                let iteration = 0;
+                clearInterval(intervalRef.current);
+                
+                intervalRef.current = setInterval(() => {
+                    setDisplayText(prev => 
+                        text.split("").map((letter, index) => {
+                            if (index < iteration) return text[index];
+                            return letters[Math.floor(Math.random() * 26)];
+                        }).join("")
+                    );
+                    
+                    if (iteration >= text.length) clearInterval(intervalRef.current);
+                    iteration += 1 / 3;
+                }, 30);
+            };
+
+            const handleMouseLeave = () => {
+                setDisplayText(text); // Reset immediately or animate back
+                clearInterval(intervalRef.current);
+            };
+
+            // Trigger once on mount for effect
+            useEffect(() => {
+                handleMouseOver();
+            }, []);
+
+            return (
+                <span 
+                    onMouseOver={handleMouseOver} 
+                    onMouseLeave={handleMouseLeave}
+                    className={className}
+                >
+                    {displayText}
+                </span>
+            );
+        };
+
+        // --- COMPONENT: 3D Tilt Container ---
+        const TiltContainer = ({ children }) => {
+            const ref = useRef(null);
+            const [transform, setTransform] = useState("");
+
+            const handleMouseMove = (e) => {
+                if (!ref.current) return;
+                const { left, top, width, height } = ref.current.getBoundingClientRect();
+                const x = (e.clientX - left - width / 2) / 25;
+                const y = (e.clientY - top - height / 2) / 25;
+                setTransform(`perspective(1000px) rotateX(${-y}deg) rotateY(${x}deg) scale(1.05)`);
+            };
+
+            const handleMouseLeave = () => {
+                setTransform("perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)");
+            };
 
             return (
                 <div 
-                    className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-xl p-4 md:p-8 animate-fade-in" 
-                    onClick={onClose}
+                    ref={ref}
+                    onMouseMove={handleMouseMove}
+                    onMouseLeave={handleMouseLeave}
+                    style={{ transform, transition: "transform 0.1s ease-out" }}
+                    className="inline-block"
                 >
-                    <div 
-                        className="relative w-full max-w-6xl aspect-video bg-black rounded-3xl overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.8)]" 
-                        onClick={e => e.stopPropagation()}
-                    >
-                        
-                        {/* Loading Spinner underneath iframe */}
+                    {children}
+                </div>
+            );
+        };
+
+        // --- COMPONENT: Siri Glow ---
+        const SiriGlow = () => (
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[160%] h-[160%] pointer-events-none -z-10 mix-blend-screen opacity-60">
+                <div className="relative w-full h-full animate-spin-ultra-slow">
+                    <div className="absolute top-0 left-1/4 w-3/4 h-3/4 bg-cyan-500/30 rounded-full blur-[80px] animate-blob mix-blend-screen"></div>
+                    <div className="absolute bottom-0 right-1/4 w-3/4 h-3/4 bg-purple-500/30 rounded-full blur-[80px] animate-blob animation-delay-2000 mix-blend-screen"></div>
+                    <div className="absolute top-1/3 left-1/3 w-2/3 h-2/3 bg-amber-500/20 rounded-full blur-[90px] animate-blob animation-delay-4000 mix-blend-screen"></div>
+                </div>
+            </div>
+        );
+
+        // --- COMPONENT: Video Modal ---
+        const VideoModal = ({ videoId, onClose }) => {
+            if (!videoId) return null;
+            return (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-xl p-4 md:p-8 animate-fade-in" onClick={onClose}>
+                    <div className="relative w-full max-w-6xl aspect-video bg-black rounded-3xl overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.8)]" onClick={e => e.stopPropagation()}>
                         <div className="absolute inset-0 flex items-center justify-center z-0">
                             <div className="w-10 h-10 border-4 border-white/10 border-t-amber-500 rounded-full animate-spin"></div>
                         </div>
-
-                        {/* Close Button */}
-                        <button 
-                            onClick={onClose}
-                            className="absolute top-6 right-6 z-50 p-3 bg-black/60 hover:bg-amber-500 backdrop-blur-md rounded-full text-white transition-all transform hover:rotate-90 hover:scale-110 border border-white/10"
-                        >
-                            <X size={24} />
-                        </button>
-                        
-                        <iframe 
-                            src={`https://drive.google.com/file/d/${videoId}/preview`}
-                            className="absolute inset-0 w-full h-full z-10"
-                            allow="autoplay; encrypted-media; fullscreen"
-                            allowFullScreen
-                            title="Project Video"
-                        ></iframe>
+                        <button onClick={onClose} className="absolute top-6 right-6 z-50 p-3 bg-black/60 hover:bg-amber-500 backdrop-blur-md rounded-full text-white transition-all transform hover:rotate-90 border border-white/10"><X size={24} /></button>
+                        <iframe src={`https://drive.google.com/file/d/${videoId}/preview`} className="absolute inset-0 w-full h-full z-10" allow="autoplay; encrypted-media; fullscreen" allowFullScreen></iframe>
                     </div>
                 </div>
             );
         };
 
-        // --- ADVANCED COMPONENT: Neural Network Background ---
-        const NeuralBackground = () => {
-            const canvasRef = useRef(null);
-
-            useEffect(() => {
-                const canvas = canvasRef.current;
-                const ctx = canvas.getContext('2d');
-                let animationFrameId;
-                let width, height;
-                let particles = [];
-
-                const particleCount = 45;
-                const connectionDistance = 180;
-
-                const resize = () => {
-                    width = canvas.width = window.innerWidth;
-                    height = canvas.height = window.innerHeight;
-                };
-
-                class Particle {
-                    constructor() {
-                        this.x = Math.random() * width;
-                        this.y = Math.random() * height;
-                        this.vx = (Math.random() - 0.5) * 0.4;
-                        this.vy = (Math.random() - 0.5) * 0.4;
-                        this.size = Math.random() * 2;
-                    }
-
-                    update() {
-                        this.x += this.vx;
-                        this.y += this.vy;
-                        if (this.x < 0 || this.x > width) this.vx *= -1;
-                        if (this.y < 0 || this.y > height) this.vy *= -1;
-                    }
-
-                    draw() {
-                        ctx.fillStyle = 'rgba(245, 158, 11, 0.4)';
-                        ctx.beginPath();
-                        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                        ctx.fill();
-                    }
-                }
-
-                const init = () => {
-                    particles = [];
-                    for (let i = 0; i < particleCount; i++) {
-                        particles.push(new Particle());
-                    }
-                };
-
-                const animate = () => {
-                    ctx.clearRect(0, 0, width, height);
-                    for (let i = 0; i < particles.length; i++) {
-                        particles[i].update();
-                        particles[i].draw();
-                        for (let j = i; j < particles.length; j++) {
-                            const dx = particles[i].x - particles[j].x;
-                            const dy = particles[i].y - particles[j].y;
-                            const distance = Math.sqrt(dx * dx + dy * dy);
-                            if (distance < connectionDistance) {
-                                ctx.beginPath();
-                                ctx.strokeStyle = `rgba(245, 158, 11, ${0.2 * (1 - distance / connectionDistance)})`;
-                                ctx.lineWidth = 0.6;
-                                ctx.moveTo(particles[i].x, particles[i].y);
-                                ctx.lineTo(particles[j].x, particles[j].y);
-                                ctx.stroke();
-                            }
-                        }
-                    }
-                    animationFrameId = requestAnimationFrame(animate);
-                };
-
-                window.addEventListener('resize', resize);
-                resize();
-                init();
-                animate();
-
-                return () => {
-                    window.removeEventListener('resize', resize);
-                    cancelAnimationFrame(animationFrameId);
-                };
-            }, []);
-
-            return <canvas ref={canvasRef} className="fixed inset-0 z-0 opacity-40 pointer-events-none" />;
-        };
-
-        // --- COMPONENT: Pixel Phone Mockup with Animation ---
+        // --- COMPONENT: Pixel Phone ---
         const PixelPhone = () => {
             const [isVisible, setIsVisible] = useState(false);
             const phoneRef = useRef(null);
-
             useEffect(() => {
-                const observer = new IntersectionObserver(
-                ([entry]) => {
-                    if (entry.isIntersecting) {
-                    setIsVisible(true);
-                    }
-                },
-                { threshold: 0.3 }
-                );
-
-                if (phoneRef.current) {
-                observer.observe(phoneRef.current);
-                }
-
-                return () => {
-                if (phoneRef.current) observer.unobserve(phoneRef.current);
-                };
+                const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) setIsVisible(true); }, { threshold: 0.3 });
+                if (phoneRef.current) observer.observe(phoneRef.current);
+                return () => { if (phoneRef.current) observer.unobserve(phoneRef.current); };
             }, []);
-
             return (
                 <div ref={phoneRef} className={`perspective-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'} transition-all duration-1000 ease-out`}>
-                {/* 3D Floating Animation Wrapper */}
-                <div className="animate-float relative w-[300px] h-[600px] mx-auto">
-                    
-                    {/* Phone Frame (Pixel 10 Pro Concept) */}
-                    <div className="absolute inset-0 bg-[#121212] rounded-[40px] border-[6px] border-[#3a3a3a] shadow-[0_0_50px_rgba(0,0,0,0.8),inset_0_0_20px_rgba(255,255,255,0.05)] overflow-hidden z-20">
-                    
-                    {/* Metallic Side Highlight */}
-                    <div className="absolute inset-0 border border-white/10 rounded-[34px] pointer-events-none z-30"></div>
-                    
-                    {/* Front Camera Pill */}
-                    <div className="absolute top-4 left-1/2 -translate-x-1/2 w-24 h-6 bg-black rounded-full z-40 flex items-center justify-center">
-                        <div className="w-2 h-2 rounded-full bg-[#1a1a1a] border border-[#333]"></div>
-                    </div>
-
-                    {/* Screen Content - YT Analytics Style */}
-                    <div className="w-full h-full bg-[#0f0f0f] pt-14 px-6 flex flex-col relative">
-                        
-                        {/* Header */}
-                        <div className="flex justify-between items-center mb-6">
-                        <div>
-                            <h3 className="text-gray-400 text-xs font-bold uppercase tracking-wider">Content Performance</h3>
-                            <div className="text-white font-bold text-lg">Video Analytics</div>
-                        </div>
-                        <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center">
-                            <BarChart3 size={14} className="text-amber-500" />
-                        </div>
-                        </div>
-
-                        {/* Retention Card */}
-                        <div className="bg-zinc-900/50 rounded-2xl p-4 border border-white/5 mb-4 shadow-lg backdrop-blur-sm">
-                        <div className="flex justify-between items-end mb-2">
-                            <div>
-                                <div className="text-zinc-500 text-xs mb-1">Audience Retention</div>
-                                <div className="text-3xl font-black text-white">84.2%</div>
+                    <div className="animate-float relative w-[300px] h-[600px] mx-auto">
+                        <div className="absolute inset-0 bg-[#121212] rounded-[40px] border-[6px] border-[#3a3a3a] shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden z-20">
+                            <div className="absolute top-4 left-1/2 -translate-x-1/2 w-24 h-6 bg-black rounded-full z-40 flex items-center justify-center"><div className="w-2 h-2 rounded-full bg-[#1a1a1a] border border-[#333]"></div></div>
+                            <div className="w-full h-full bg-[#0f0f0f] pt-14 px-6 flex flex-col relative">
+                                <div className="flex justify-between items-center mb-6"><div><h3 className="text-gray-400 text-xs font-bold uppercase">Content Performance</h3><div className="text-white font-bold text-lg">Video Analytics</div></div><div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center"><BarChart3 size={14} className="text-amber-500" /></div></div>
+                                <div className="bg-zinc-900/50 rounded-2xl p-4 border border-white/5 mb-4 shadow-lg backdrop-blur-sm"><div className="flex justify-between items-end mb-2"><div><div className="text-zinc-500 text-xs mb-1">Audience Retention</div><div className="text-3xl font-black text-white">84.2%</div></div><div className="text-green-500 text-xs font-bold bg-green-500/10 px-2 py-1 rounded">+12.4%</div></div><div className="h-40 w-full relative mt-4"><svg className="absolute inset-0 w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 100"><defs><linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#f59e0b" stopOpacity="1" /><stop offset="100%" stopColor="#fbbf24" stopOpacity="1" /></linearGradient></defs><path d="M0,10 C30,10, 50,30, 100,20" fill="none" stroke="url(#lineGradient)" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" className={`${isVisible ? 'animate-draw-graph' : 'opacity-0'}`} /></svg></div></div>
+                                <div className="grid grid-cols-2 gap-3"><div className="bg-zinc-900/30 p-3 rounded-xl border border-white/5"><Users size={16} className="text-zinc-500 mb-2" /><div className="text-lg font-bold text-white">45.2K</div><div className="text-[10px] text-zinc-500">New Viewers</div></div><div className="bg-zinc-900/30 p-3 rounded-xl border border-white/5"><Activity size={16} className="text-zinc-500 mb-2" /><div className="text-lg font-bold text-white">High</div><div className="text-[10px] text-zinc-500">Engagement</div></div></div>
+                                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 bg-zinc-700 rounded-full"></div>
                             </div>
-                            <div className="text-green-500 text-xs font-bold bg-green-500/10 px-2 py-1 rounded">+12.4%</div>
                         </div>
-                        
-                        {/* Animated Graph Container */}
-                        <div className="h-40 w-full relative mt-4">
-                            {/* Grid Lines */}
-                            <div className="absolute inset-0 flex flex-col justify-between opacity-10">
-                                <div className="w-full h-px bg-white"></div>
-                                <div className="w-full h-px bg-white"></div>
-                                <div className="w-full h-px bg-white"></div>
-                                <div className="w-full h-px bg-white"></div>
-                            </div>
-
-                            {/* Standard Curve (Dotted) */}
-                            <svg className="absolute inset-0 w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 100">
-                                <path d="M0,10 Q20,80 100,90" fill="none" stroke="#333" strokeWidth="2" strokeDasharray="4,4" />
-                            </svg>
-
-                            {/* Optimized Curve (Animated) */}
-                            <svg className="absolute inset-0 w-full h-full overflow-visible drop-shadow-[0_0_15px_rgba(245,158,11,0.5)]" preserveAspectRatio="none" viewBox="0 0 100 100">
-                                <defs>
-                                    <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
-                                    <stop offset="0%" stopColor="#f59e0b" stopOpacity="1" />
-                                    <stop offset="100%" stopColor="#fbbf24" stopOpacity="1" />
-                                    </linearGradient>
-                                </defs>
-                                <path 
-                                d="M0,10 C30,10, 50,30, 100,20" 
-                                fill="none" 
-                                stroke="url(#lineGradient)" 
-                                strokeWidth="4" 
-                                strokeLinecap="round" 
-                                strokeLinejoin="round"
-                                className={`${isVisible ? 'animate-draw-graph' : 'opacity-0'}`}
-                                />
-                                {/* Pulsing Dot at end */}
-                                <circle cx="100" cy="20" r="3" fill="#fff" className={`${isVisible ? 'animate-pulse' : 'hidden'}`} />
-                            </svg>
-                        </div>
-                        <div className="text-[10px] text-zinc-600 mt-2 text-center font-mono">Top performing moment at 0:34</div>
-                        </div>
-
-                        {/* Secondary Stats */}
-                        <div className="grid grid-cols-2 gap-3">
-                        <div className="bg-zinc-900/30 p-3 rounded-xl border border-white/5">
-                            <Users size={16} className="text-zinc-500 mb-2" />
-                            <div className="text-lg font-bold text-white">45.2K</div>
-                            <div className="text-[10px] text-zinc-500">New Viewers</div>
-                        </div>
-                        <div className="bg-zinc-900/30 p-3 rounded-xl border border-white/5">
-                            <Activity size={16} className="text-zinc-500 mb-2" />
-                            <div className="text-lg font-bold text-white">High</div>
-                            <div className="text-[10px] text-zinc-500">Engagement</div>
-                        </div>
-                        </div>
-
-                        {/* Bottom Gradient Fade */}
-                        <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-black to-transparent pointer-events-none"></div>
-                        
-                        {/* Home Indicator */}
-                        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 bg-zinc-700 rounded-full"></div>
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] h-[80%] bg-amber-500/20 blur-[60px] rounded-full z-10 animate-pulse-slow"></div>
                     </div>
-                    </div>
-
-                    {/* Glow behind phone */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] h-[80%] bg-amber-500/20 blur-[60px] rounded-full z-10 animate-pulse-slow"></div>
-                </div>
                 </div>
             );
         };
 
-        // --- LOGIC: Advanced WhatsApp Status Indicator ---
+        // --- COMPONENT: WhatsApp Status ---
         const WhatsAppStatus = () => {
             const [status, setStatus] = useState('offline');
             const [subText, setSubText] = useState('Checking...');
-
             useEffect(() => {
-                const updateStatus = () => {
-                // Get Sri Lanka Time
-                const slTime = new Date().toLocaleString("en-US", {timeZone: "Asia/Colombo"});
-                const now = new Date(slTime);
-                const hour = now.getHours();
-                const minute = now.getMinutes();
-                
-                // Calculate total minutes past midnight
-                const totalMinutes = hour * 60 + minute;
-                
-                // 6:30 AM = 390 minutes
-                // 12:00 AM (Midnight) = End of day (effectively)
-                // Logic: If time is >= 6:30 AM (390 mins) AND < Midnight
-                const isOnline = totalMinutes >= 390; 
-                
-                setStatus(isOnline ? 'online' : 'offline');
-                
-                if (isOnline) {
-                    setSubText('Instantly Available');
-                } else {
-                    setSubText(`Back online at 6:30 AM`);
-                }
+                const update = () => {
+                    const now = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Colombo"}));
+                    const mins = now.getHours() * 60 + now.getMinutes();
+                    const isOnline = mins >= 390; 
+                    setStatus(isOnline ? 'online' : 'offline');
+                    setSubText(isOnline ? 'Instantly Available' : 'Back online at 6:30 AM');
                 };
-
-                updateStatus();
-                const interval = setInterval(updateStatus, 60000); 
-                return () => clearInterval(interval);
+                update();
+                const i = setInterval(update, 60000); return () => clearInterval(i);
             }, []);
-
             return (
-                <div className={`
-                relative overflow-hidden group
-                flex items-center gap-3 px-5 py-2 rounded-full border transition-all duration-500 shadow-lg backdrop-blur-md
-                ${status === 'online' 
-                    ? 'bg-green-950/30 border-green-500/30 shadow-[0_0_15px_rgba(34,197,94,0.15)]' 
-                    : 'bg-zinc-900/80 border-zinc-800 opacity-70'}
-                `}>
-                {/* Pulse Animation Background for Online */}
-                {status === 'online' && (
-                    <div className="absolute inset-0 bg-green-500/5 animate-pulse"></div>
-                )}
-
-                {/* Indicator Dot */}
-                <div className="relative">
-                    <div className={`w-2.5 h-2.5 rounded-full ${status === 'online' ? 'bg-green-500' : 'bg-zinc-500'}`}></div>
-                    {status === 'online' && (
-                    <React.Fragment>
-                        <div className="absolute inset-0 w-2.5 h-2.5 rounded-full bg-green-500 animate-ping opacity-75"></div>
-                        <div className="absolute inset-0 w-2.5 h-2.5 rounded-full bg-green-400 blur-sm opacity-50"></div>
-                    </React.Fragment>
-                    )}
-                </div>
-
-                {/* Text Info */}
-                <div className="flex flex-col text-left">
-                    <span className={`text-[10px] font-black uppercase tracking-widest leading-none ${status === 'online' ? 'text-green-400' : 'text-zinc-500'}`}>
-                    {status === 'online' ? 'Online' : 'Offline'}
-                    </span>
-                    <span className="text-[9px] font-medium text-zinc-400 uppercase tracking-wide leading-tight">
-                    {subText}
-                    </span>
-                </div>
+                <div className={`flex items-center gap-3 px-5 py-2 rounded-full border transition-all duration-500 shadow-lg backdrop-blur-md ${status === 'online' ? 'bg-green-950/30 border-green-500/30' : 'bg-zinc-900/80 border-zinc-800 opacity-70'}`}>
+                    <div className="relative"><div className={`w-2.5 h-2.5 rounded-full ${status === 'online' ? 'bg-green-500' : 'bg-zinc-500'}`}></div>{status === 'online' && <div className="absolute inset-0 w-2.5 h-2.5 rounded-full bg-green-500 animate-ping opacity-75"></div>}</div>
+                    <div className="flex flex-col text-left"><span className={`text-[10px] font-black uppercase ${status === 'online' ? 'text-green-400' : 'text-zinc-500'}`}>{status === 'online' ? 'Online' : 'Offline'}</span><span className="text-[9px] font-medium text-zinc-400 uppercase">{subText}</span></div>
                 </div>
             );
         };
@@ -429,8 +310,6 @@
             const [isScrolled, setIsScrolled] = useState(false);
             const [isMenuOpen, setIsMenuOpen] = useState(false);
             const [selectedVideo, setSelectedVideo] = useState(null);
-            
-            // Mouse for Spotlight
             const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
             const heroRef = useRef(null);
 
@@ -438,16 +317,12 @@
                 const handleMouseMove = (e) => {
                     if (!heroRef.current) return;
                     const rect = heroRef.current.getBoundingClientRect();
-                    setMousePos({
-                        x: e.clientX - rect.left,
-                        y: e.clientY - rect.top
-                    });
+                    setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
                 };
                 window.addEventListener('mousemove', handleMouseMove);
                 return () => window.removeEventListener('mousemove', handleMouseMove);
             }, []);
 
-            // Handle Scroll
             useEffect(() => {
                 const handleScroll = () => setIsScrolled(window.scrollY > 50);
                 window.addEventListener('scroll', handleScroll);
@@ -456,10 +331,7 @@
 
             const scrollToSection = (id) => {
                 const element = document.getElementById(id);
-                if (element) {
-                element.scrollIntoView({ behavior: 'smooth' });
-                setIsMenuOpen(false);
-                }
+                if (element) { element.scrollIntoView({ behavior: 'smooth' }); setIsMenuOpen(false); }
             };
 
             const projects = useMemo(() => [
@@ -477,349 +349,179 @@
 
             return (
                 <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-amber-500 selection:text-black overflow-x-hidden relative cursor-none">
-                
-                {/* 0. Custom Cursor */}
                 <CustomCursor />
-
-                {/* VIDEO MODAL OVERLAY */}
                 {selectedVideo && <VideoModal videoId={selectedVideo} onClose={() => setSelectedVideo(null)} />}
-
-                {/* 1. Neural Network Background */}
-                <NeuralBackground />
-
-                {/* Cinematic Noise Overlay */}
+                
+                {/* Noise & Background */}
                 <div className="fixed inset-0 opacity-[0.05] pointer-events-none z-50 mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
-
-                {/* Floating Navbar */}
+                
                 <nav className={`fixed top-0 w-full z-40 transition-all duration-700 ease-out ${isScrolled ? 'py-4' : 'py-8'}`}>
                     <div className={`max-w-7xl mx-auto px-6 transition-all duration-500 ${isScrolled ? 'bg-black/60 backdrop-blur-xl border border-white/5 rounded-full shadow-2xl' : ''}`}>
                     <div className="flex items-center justify-between h-14">
                         <div className="text-2xl font-black tracking-tighter flex items-center gap-2 cursor-pointer z-50 hover:text-amber-500 transition-colors" onClick={() => window.scrollTo(0,0)}>
                         KAVEESHA<span className="text-amber-500 text-3xl leading-[0]">.</span>
                         </div>
-
-                        {/* Desktop Nav - "REVIEWS" REMOVED */}
                         <div className="hidden md:flex items-center gap-1 bg-white/5 p-1 rounded-full border border-white/5 backdrop-blur-md">
                         {['Work', 'About', 'Why Me', 'Services', 'Contact'].map((item) => (
-                            <button 
-                            key={item}
-                            onClick={() => scrollToSection(item === 'Services' ? 'work' : item.toLowerCase().replace(' ', '-'))}
-                            className="px-6 py-2 text-sm font-bold text-zinc-400 hover:text-white hover:bg-white/10 rounded-full transition-all tracking-wide uppercase"
-                            >
-                            {item}
-                            </button>
+                            <button key={item} onClick={() => scrollToSection(item === 'Services' ? 'work' : item.toLowerCase().replace(' ', '-'))} className="px-6 py-2 text-sm font-bold text-zinc-400 hover:text-white hover:bg-white/10 rounded-full transition-all tracking-wide uppercase">{item}</button>
                         ))}
                         </div>
-
-                        <button 
-                        onClick={() => scrollToSection('contact')}
-                        className="hidden md:flex items-center gap-2 px-8 py-3 bg-amber-500 hover:bg-amber-400 text-black text-sm font-black uppercase tracking-wider rounded-full transition-all transform hover:scale-105 shadow-[0_0_25px_rgba(245,158,11,0.5)] hover:shadow-[0_0_40px_rgba(245,158,11,0.7)]"
-                        >
-                        Start Project
-                        </button>
-
-                        {/* Mobile Toggle */}
-                        <button className="md:hidden text-white p-2 z-50" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-                        {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-                        </button>
+                        <button onClick={() => scrollToSection('contact')} className="hidden md:flex items-center gap-2 px-8 py-3 bg-amber-500 hover:bg-amber-400 text-black text-sm font-black uppercase tracking-wider rounded-full transition-all transform hover:scale-105 shadow-[0_0_25px_rgba(245,158,11,0.5)]">Start Project</button>
+                        <button className="md:hidden text-white p-2 z-50" onClick={() => setIsMenuOpen(!isMenuOpen)}>{isMenuOpen ? <X size={24} /> : <Menu size={24} />}</button>
                     </div>
                     </div>
                 </nav>
 
-                {/* Mobile Menu Overlay - "REVIEWS" REMOVED */}
                 {isMenuOpen && (
                     <div className="fixed inset-0 z-30 bg-black/98 backdrop-blur-xl pt-32 px-6 md:hidden flex flex-col items-center gap-8">
                     {['Work', 'About', 'Why Me', 'Services', 'FAQ', 'Contact'].map((item) => (
-                        <button 
-                        key={item}
-                        onClick={() => scrollToSection(item === 'Services' ? 'work' : item.toLowerCase().replace(' ', '-'))}
-                        className="text-5xl font-black text-zinc-700 hover:text-white hover:scale-110 transition-all uppercase tracking-tighter"
-                        >
-                        {item}
-                        </button>
+                        <button key={item} onClick={() => scrollToSection(item === 'Services' ? 'work' : item.toLowerCase().replace(' ', '-'))} className="text-5xl font-black text-zinc-700 hover:text-white hover:scale-110 transition-all uppercase tracking-tighter">{item}</button>
                     ))}
                     </div>
                 )}
 
-                {/* 2. Hero Section (ADVANCED & IMMERSIVE) */}
-                <header ref={heroRef} className="relative min-h-screen flex flex-col items-center justify-center pt-20 px-6 overflow-hidden">
+                {/* --- HERO SECTION WITH MAX ANIMATIONS --- */}
+                <header ref={heroRef} className="relative min-h-screen flex flex-col items-center justify-center pt-20 px-6 overflow-hidden perspective-distant">
                     
-                    {/* Dynamic Spotlight Effect */}
-                    <div 
-                        className="absolute inset-0 pointer-events-none z-0 transition-opacity duration-300"
-                        style={{
-                            background: `radial-gradient(600px circle at ${mousePos.x}px ${mousePos.y}px, rgba(245, 158, 11, 0.08), transparent 40%)`
-                        }}
-                    ></div>
+                    {/* Spotlight */}
+                    <div className="absolute inset-0 pointer-events-none z-0 transition-opacity duration-300" style={{ background: `radial-gradient(600px circle at ${mousePos.x}px ${mousePos.y}px, rgba(245, 158, 11, 0.08), transparent 40%)` }}></div>
 
-                    {/* Ambient Glows */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-amber-500/5 rounded-full blur-[120px] pointer-events-none animate-pulse"></div>
+                    {/* God Rays Background */}
+                    <div className="god-ray"></div>
 
                     <div className="relative z-10 text-center max-w-6xl">
                         
-                        {/* Status Badge */}
                         <div className="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-white/5 border border-white/10 mb-8 animate-fade-in backdrop-blur-xl hover:border-amber-500/30 transition-colors cursor-default">
-                            <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                            </span>
+                            <span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span></span>
                             <span className="text-zinc-300 text-[10px] font-bold uppercase tracking-[0.25em]">Accepting New Clients</span>
                         </div>
 
-                        {/* Main Headlines */}
-                        <h1 className="font-space text-6xl md:text-8xl lg:text-[9rem] font-bold tracking-tighter leading-[0.9] mb-8 mix-blend-lighten relative">
-                            <span className="block text-transparent bg-clip-text bg-gradient-to-b from-white via-zinc-200 to-zinc-500 drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]">
-                                VISUAL
-                            </span>
-                            <div className="relative inline-block mt-2">
-                                <span className="text-amber-500 drop-shadow-[0_0_30px_rgba(245,158,11,0.4)]">ALCHEMY</span>
-                                {/* Glitch overlay logic could go here */}
-                            </div>
-                        </h1>
+                        {/* --- THE MAIN TITLE BLOCK --- */}
+                        <TiltContainer>
+                            <h1 className="font-space text-6xl md:text-8xl lg:text-[9rem] font-bold tracking-tighter leading-[0.9] mb-8 relative z-20 cursor-default">
+                                
+                                {/* 1. VISUAL - Hacker Scramble + Liquid Silver */}
+                                <div className="relative inline-block mb-2 md:mb-0">
+                                    <HackerText 
+                                        text="VISUAL" 
+                                        className="block text-liquid-silver drop-shadow-[0_0_25px_rgba(255,255,255,0.2)] hover:tracking-wide transition-all duration-500"
+                                    />
+                                    {/* Reflection */}
+                                    <span className="absolute top-full left-0 w-full h-full text-liquid-silver opacity-10 transform scale-y-[-1] blur-sm pointer-events-none">VISUAL</span>
+                                </div>
+                                
+                                {/* 2. ALCHEMY - Liquid Gold + Holo Glitch + Siri Glow */}
+                                <div className="relative inline-block mt-2 group mx-2 md:mx-4">
+                                    <SiriGlow />
+                                    
+                                    <div className="relative">
+                                        {/* Main Text */}
+                                        <span className="relative z-20 text-liquid-gold drop-shadow-[0_0_40px_rgba(245,158,11,0.6)] group-hover:drop-shadow-[0_0_60px_rgba(245,158,11,0.9)] transition-all duration-300 block">
+                                            ALCHEMY
+                                        </span>
+                                        
+                                        {/* Holo Overlay (Triggers on Hover) */}
+                                        <span className="holo-overlay z-30 mix-blend-screen text-transparent bg-clip-text bg-gradient-to-r from-transparent via-white to-transparent">ALCHEMY</span>
+                                        
+                                        {/* Floating Particles (CSS Only for now) */}
+                                        <div className="absolute -inset-10 z-0">
+                                            <div className="absolute top-0 left-1/4 w-1 h-1 bg-amber-500 rounded-full animate-ping"></div>
+                                            <div className="absolute bottom-10 right-10 w-1 h-1 bg-white rounded-full animate-ping animation-delay-2000"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    {/* Floor Glow */}
+                                    <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-[120%] h-8 bg-amber-500/20 blur-[40px] rounded-[100%] opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                </div>
+                            </h1>
+                        </TiltContainer>
 
                         <p className="text-xl md:text-2xl text-zinc-400 max-w-3xl mx-auto mb-12 leading-relaxed font-light">
                             Stop the scroll. Own the attention. I architect <span className="text-white font-bold border-b border-amber-500/50">high-retention</span> video assets that dominate the algorithm.
                         </p>
 
-                        {/* Social Proof / Trust Bar - UPDATED TO 100+ PROJECTS */}
                         <div className="flex flex-wrap justify-center gap-6 md:gap-12 mb-14 text-zinc-500">
-                            <div className="flex items-center gap-2">
-                                <Trophy size={18} className="text-amber-500" />
-                                <span className="text-sm font-bold uppercase tracking-wider text-white">100+ <span className="text-zinc-500 font-normal normal-case">Projects</span></span>
-                            </div>
+                            <div className="flex items-center gap-2"><Trophy size={18} className="text-amber-500" /><span className="text-sm font-bold uppercase tracking-wider text-white">100+ <span className="text-zinc-500 font-normal normal-case">Projects</span></span></div>
                             <div className="w-px h-6 bg-white/10 hidden md:block"></div>
-                            <div className="flex items-center gap-2">
-                                <Users size={18} className="text-amber-500" />
-                                <span className="text-sm font-bold uppercase tracking-wider text-white">50M+ <span className="text-zinc-500 font-normal normal-case">Views Generated</span></span>
-                            </div>
+                            <div className="flex items-center gap-2"><Users size={18} className="text-amber-500" /><span className="text-sm font-bold uppercase tracking-wider text-white">50M+ <span className="text-zinc-500 font-normal normal-case">Views Generated</span></span></div>
                             <div className="w-px h-6 bg-white/10 hidden md:block"></div>
-                            <div className="flex items-center gap-2">
-                                <Flame size={18} className="text-amber-500" />
-                                <span className="text-sm font-bold uppercase tracking-wider text-white">100% <span className="text-zinc-500 font-normal normal-case">Client Satisfaction</span></span>
-                            </div>
+                            <div className="flex items-center gap-2"><Flame size={18} className="text-amber-500" /><span className="text-sm font-bold uppercase tracking-wider text-white">100% <span className="text-zinc-500 font-normal normal-case">Client Satisfaction</span></span></div>
                         </div>
 
-                        {/* CTAs */}
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                            <button 
-                                onClick={() => scrollToSection('contact')}
-                                className="group relative px-10 py-5 bg-amber-500 hover:bg-amber-400 text-black font-black text-lg rounded-full overflow-hidden transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(245,158,11,0.6)]"
-                            >
-                                <span className="relative z-10 flex items-center gap-2 tracking-wide">
-                                    START PROJECT <ArrowRight size={20} className="-rotate-45 group-hover:rotate-0 transition-transform" />
-                                </span>
-                            </button>
-                            
-                            <button 
-                                onClick={() => scrollToSection('work')}
-                                className="px-10 py-5 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-bold text-lg rounded-full transition-all flex items-center gap-3 backdrop-blur-md"
-                            >
-                                <Play size={20} fill="white" /> WATCH SHOWREEL
-                            </button>
+                            <button onClick={() => scrollToSection('contact')} className="group relative px-10 py-5 bg-amber-500 hover:bg-amber-400 text-black font-black text-lg rounded-full overflow-hidden transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(245,158,11,0.6)]"><span className="relative z-10 flex items-center gap-2 tracking-wide">START PROJECT <ArrowRight size={20} className="-rotate-45 group-hover:rotate-0 transition-transform" /></span></button>
+                            <button onClick={() => scrollToSection('work')} className="px-10 py-5 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-bold text-lg rounded-full transition-all flex items-center gap-3 backdrop-blur-md"><Play size={20} fill="white" /> WATCH SHOWREEL</button>
                         </div>
                     </div>
                 </header>
 
-                {/* 2.5. NEW: About Section */}
                 <section id="about" className="py-32 px-6 relative overflow-hidden">
-                    {/* Decorative Background Elements */}
                     <div className="absolute top-1/2 left-0 w-64 h-64 bg-amber-500/10 rounded-full blur-[80px] -translate-y-1/2 pointer-events-none"></div>
                     <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-500/5 rounded-full blur-[100px] pointer-events-none"></div>
-
                     <div className="max-w-6xl mx-auto relative z-10">
                         <div className="group relative bg-zinc-900/40 backdrop-blur-xl border border-white/5 rounded-[3rem] p-8 md:p-12 hover:border-amber-500/20 transition-all duration-700">
-                            
-                            {/* Grid Layout */}
                             <div className="grid md:grid-cols-12 gap-12 items-center">
-                                
-                                {/* Image Column (5 cols) */}
                                 <div className="md:col-span-5 relative">
                                     <div className="relative aspect-[4/5] rounded-2xl overflow-hidden">
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10"></div>
-                                        <img 
-                                            src="https://github.com/nilukshanaayodaya-ops/kaveeshanilukshana/blob/449ddb75bafdc4b8465e62345f6ebdeefe5b0281/6fedef4a-36b7-4c60-b7ff-e6d4f21c7654.jpg?raw=true" 
-                                            className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out"
-                                            alt="Kaveesha Nilukshana"
-                                        />
-                                        
-                                        {/* Floating Tech Badge */}
-                                        <div className="absolute bottom-6 left-6 z-20">
-                                            <div className="flex items-center gap-2 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
-                                                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                                <span className="text-xs font-bold text-white tracking-wide">Online & Creating</span>
-                                            </div>
-                                        </div>
+                                        <img src="https://github.com/nilukshanaayodaya-ops/kaveeshanilukshana/blob/449ddb75bafdc4b8465e62345f6ebdeefe5b0281/6fedef4a-36b7-4c60-b7ff-e6d4f21c7654.jpg?raw=true" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out" alt="Kaveesha Nilukshana" />
+                                        <div className="absolute bottom-6 left-6 z-20"><div className="flex items-center gap-2 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10"><div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div><span className="text-xs font-bold text-white tracking-wide">Online & Creating</span></div></div>
                                     </div>
-
-                                    {/* Decorative geometric elements behind */}
                                     <div className="absolute -top-4 -right-4 w-24 h-24 border-t-2 border-r-2 border-amber-500/30 rounded-tr-3xl pointer-events-none"></div>
                                     <div className="absolute -bottom-4 -left-4 w-24 h-24 border-b-2 border-l-2 border-amber-500/30 rounded-bl-3xl pointer-events-none"></div>
                                 </div>
-
-                                {/* Content Column (7 cols) */}
                                 <div className="md:col-span-7 flex flex-col justify-center">
-                                    
-                                    <div className="mb-6">
-                                        <h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter mb-2">
-                                            MEET <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-600">KAVEESHA.</span>
-                                        </h2>
-                                        <div className="flex items-center gap-3">
-                                            <div className="h-px w-12 bg-amber-500/50"></div>
-                                            <span className="text-amber-500 font-mono text-sm font-bold tracking-widest uppercase">
-                                                QC SUPERVISOR @ ZAAN DIGITAL
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <p className="text-zinc-400 text-lg leading-relaxed mb-8 font-light border-l-2 border-white/5 pl-6">
-                                        I operate at the intersection of creativity and technical precision. As a QC Supervisor at <strong className="text-white">Zaan Digital</strong>, my eyes are trained to spot the micro-imperfections that kill retention. I don't just edit; I engineer content for the algorithmic age, ensuring every frame earns its place.
-                                    </p>
-
-                                    {/* Stats Grid - UPDATED TO 3+ YEARS */}
+                                    <div className="mb-6"><h2 className="text-4xl md:text-6xl font-black text-white tracking-tighter mb-2">MEET <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 to-orange-600">KAVEESHA.</span></h2><div className="flex items-center gap-3"><div className="h-px w-12 bg-amber-500/50"></div><span className="text-amber-500 font-mono text-sm font-bold tracking-widest uppercase">QC SUPERVISOR @ ZAAN DIGITAL</span></div></div>
+                                    <p className="text-zinc-400 text-lg leading-relaxed mb-8 font-light border-l-2 border-white/5 pl-6">I operate at the intersection of creativity and technical precision. As a QC Supervisor at <strong className="text-white">Zaan Digital</strong>, my eyes are trained to spot the micro-imperfections that kill retention. I don't just edit; I engineer content for the algorithmic age, ensuring every frame earns its place.</p>
                                     <div className="grid grid-cols-3 gap-6 mb-10">
-                                        <div className="bg-black/40 rounded-2xl p-4 border border-white/5 hover:border-amber-500/30 transition-colors">
-                                            <div className="text-3xl md:text-4xl font-black text-white mb-1">3+</div>
-                                            <div className="text-[10px] md:text-xs text-zinc-500 uppercase font-bold tracking-wider">Years Experience</div>
-                                        </div>
-                                        <div className="bg-black/40 rounded-2xl p-4 border border-white/5 hover:border-amber-500/30 transition-colors">
-                                            <div className="text-3xl md:text-4xl font-black text-white mb-1">100+</div>
-                                            <div className="text-[10px] md:text-xs text-zinc-500 uppercase font-bold tracking-wider">Projects Done</div>
-                                        </div>
-                                        <div className="bg-black/40 rounded-2xl p-4 border border-white/5 hover:border-amber-500/30 transition-colors">
-                                            <div className="text-3xl md:text-4xl font-black text-white mb-1">100%</div>
-                                            <div className="text-[10px] md:text-xs text-zinc-500 uppercase font-bold tracking-wider">Quality Score</div>
-                                        </div>
+                                        {[{val: "3+", lbl: "Years Experience"}, {val: "100+", lbl: "Projects Done"}, {val: "100%", lbl: "Quality Score"}].map((s,i) => (
+                                            <div key={i} className="bg-black/40 rounded-2xl p-4 border border-white/5 hover:border-amber-500/30 transition-colors"><div className="text-3xl md:text-4xl font-black text-white mb-1">{s.val}</div><div className="text-[10px] md:text-xs text-zinc-500 uppercase font-bold tracking-wider">{s.lbl}</div></div>
+                                        ))}
                                     </div>
-
-                                    {/* CTA or Signature */}
-                                    <div className="flex items-center gap-4">
-                                        <button 
-                                            onClick={() => scrollToSection('contact')}
-                                            className="px-8 py-3 bg-white text-black font-bold text-sm uppercase tracking-wider rounded-full hover:bg-amber-500 transition-colors"
-                                        >
-                                            Let's Talk
-                                        </button>
-                                        <div className="text-zinc-500 text-xs italic">
-                                            "Perfection is in the details."
-                                        </div>
-                                    </div>
-
+                                    <div className="flex items-center gap-4"><button onClick={() => scrollToSection('contact')} className="px-8 py-3 bg-white text-black font-bold text-sm uppercase tracking-wider rounded-full hover:bg-amber-500 transition-colors">Let's Talk</button><div className="text-zinc-500 text-xs italic">"Perfection is in the details."</div></div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </section>
 
-                {/* 3. The "Hook" - Retention Concept (MODIFIED) */}
                 <section id="why-me" className="py-32 px-6 border-y border-white/5 relative overflow-hidden">
-                    {/* Subtle Grid Background */}
                     <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px]"></div>
-
                     <div className="max-w-7xl mx-auto relative z-10">
                     <div className="grid md:grid-cols-2 gap-20 items-center">
                         <div>
-                        <h2 className="text-5xl md:text-6xl font-black mb-8 leading-[0.9]">
-                            THE <span className="text-amber-500">RETENTION</span> <br /> ARCHITECTURE.
-                        </h2>
-                        <p className="text-zinc-400 text-xl mb-10 leading-relaxed">
-                            The algorithm isn't magic. It's math. It prioritizes <strong>Average View Duration (AVD)</strong> above all else. My editing style is built to minimize drop-offs.
-                        </p>
-                        
+                        <h2 className="text-5xl md:text-6xl font-black mb-8 leading-[0.9]">THE <span className="text-amber-500">RETENTION</span> <br /> ARCHITECTURE.</h2>
+                        <p className="text-zinc-400 text-xl mb-10 leading-relaxed">The algorithm isn't magic. It's math. It prioritizes <strong>Average View Duration (AVD)</strong> above all else. My editing style is built to minimize drop-offs.</p>
                         <div className="space-y-6">
-                            {[
-                            { title: "Pattern Interrupts", desc: "Resetting attention every 3-5 seconds." },
-                            { title: "Soundscapes", desc: "Multi-layered audio that drives emotion." },
-                            { title: "Visual Density", desc: "Information rich visuals that reward focus." }
-                            ].map((item, i) => (
-                            <div key={i} className="flex gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-amber-500/50 transition-colors cursor-default hover:bg-white/10">
-                                <CheckCircle2 className="text-amber-500 flex-shrink-0 mt-1" /> 
-                                <div>
-                                <h4 className="font-bold text-white text-lg">{item.title}</h4>
-                                <p className="text-zinc-500 text-sm">{item.desc}</p>
-                                </div>
-                            </div>
+                            {[{ title: "Pattern Interrupts", desc: "Resetting attention every 3-5 seconds." }, { title: "Soundscapes", desc: "Multi-layered audio that drives emotion." }, { title: "Visual Density", desc: "Information rich visuals that reward focus." }].map((item, i) => (
+                            <div key={i} className="flex gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-amber-500/50 transition-colors cursor-default hover:bg-white/10"><CheckCircle2 className="text-amber-500 flex-shrink-0 mt-1" /> <div><h4 className="font-bold text-white text-lg">{item.title}</h4><p className="text-zinc-500 text-sm">{item.desc}</p></div></div>
                             ))}
                         </div>
                         </div>
-
-                        {/* NEW: Pixel Phone Component replacing the old graph */}
-                        <div className="flex justify-center items-center">
-                        <PixelPhone />
-                        </div>
-
+                        <div className="flex justify-center items-center"><PixelPhone /></div>
                     </div>
                     </div>
                 </section>
 
-                {/* 4. Marquee Text */}
                 <div className="py-10 bg-amber-500 text-black overflow-hidden -skew-y-2 border-y-8 border-black relative z-20">
-                    <div className="flex gap-12 animate-marquee whitespace-nowrap font-black text-5xl md:text-7xl uppercase tracking-tighter">
-                    <span>★ EDITING</span>
-                    <span>★ MOTION</span>
-                    <span>★ SOUND</span>
-                    <span>★ STORY</span>
-                    <span>★ EDITING</span>
-                    <span>★ MOTION</span>
-                    <span>★ SOUND</span>
-                    <span>★ STORY</span>
-                    </div>
+                    <div className="flex gap-12 animate-marquee whitespace-nowrap font-black text-5xl md:text-7xl uppercase tracking-tighter"><span>★ EDITING</span><span>★ MOTION</span><span>★ SOUND</span><span>★ STORY</span><span>★ EDITING</span><span>★ MOTION</span><span>★ SOUND</span><span>★ STORY</span></div>
                 </div>
 
-                {/* 5. Portfolio Grid */}
                 <section id="work" className="py-32 px-6 relative z-10">
                     <div className="max-w-7xl mx-auto">
                     <div className="flex flex-col md:flex-row items-end justify-between mb-24 gap-8">
-                        <div>
-                        <h2 className="text-5xl md:text-8xl font-black tracking-tighter mb-4 text-white">SELECTED <br /><span className="text-zinc-800">WORKS.</span></h2>
-                        </div>
-                        <div className="text-zinc-400 max-w-sm text-right">
-                        <p>A curation of high-performing assets created for clients globally. Click to watch.</p>
-                        </div>
+                        <div><h2 className="text-5xl md:text-8xl font-black tracking-tighter mb-4 text-white">SELECTED <br /><span className="text-zinc-800">WORKS.</span></h2></div>
+                        <div className="text-zinc-400 max-w-sm text-right"><p>A curation of high-performing assets created for clients globally. Click to watch.</p></div>
                     </div>
-
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
                         {projects.map((project, index) => (
-                        <div 
-                            key={index} 
-                            onClick={() => setSelectedVideo(project.id)}
-                            className="group relative rounded-2xl overflow-hidden cursor-pointer transition-transform duration-500 aspect-[16/9]"
-                        >
-                            {/* Border Glow for all */}
+                        <div key={index} onClick={() => setSelectedVideo(project.id)} className="group relative rounded-2xl overflow-hidden cursor-pointer transition-transform duration-500 aspect-[16/9]">
                             <div className="absolute -inset-1 bg-gradient-to-r from-amber-500 to-amber-600 rounded-2xl blur opacity-0 group-hover:opacity-75 transition duration-500"></div>
-
-                            {/* Content Container */}
                             <div className="relative w-full h-full bg-zinc-900 overflow-hidden rounded-lg">
-                                
-                                {/* UPDATED: Better Thumbnail Logic & Fallback */}
-                                <img 
-                                    src={`https://drive.google.com/thumbnail?id=${project.id}&sz=w1024`}
-                                    alt={project.title}
-                                    loading="lazy"
-                                    className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 ease-out"
-                                    onError={(e) => {
-                                        // Hide broken image
-                                        e.target.style.display = 'none'; 
-                                        // Add a gradient fallback to parent
-                                        e.target.parentNode.style.background = 'linear-gradient(135deg, #18181b 0%, #27272a 100%)';
-                                    }}
-                                />
-                                
-                                {/* Dark Gradient Overlay */}
+                                <img src={`https://drive.google.com/thumbnail?id=${project.id}&sz=w1024`} alt={project.title} loading="lazy" className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 ease-out" onError={(e) => { e.target.style.display = 'none'; e.target.parentNode.style.background = 'linear-gradient(135deg, #18181b 0%, #27272a 100%)'; }} />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-90 group-hover:opacity-60 transition-opacity duration-500"></div>
-
-                                <div className="absolute inset-0 flex items-center justify-center z-20">
-                                <div className="w-16 h-16 bg-amber-500 rounded-full flex items-center justify-center scale-0 group-hover:scale-100 transition-transform duration-300 shadow-[0_0_30px_rgba(245,158,11,0.6)]">
-                                    <Play fill="black" className="ml-1 text-black" size={24} />
-                                </div>
-                                </div>
-                                
-                                {/* Bottom Info */}
-                                <div className="absolute bottom-0 left-0 w-full p-6 translate-y-4 group-hover:translate-y-0 transition-transform duration-300 z-30">
-                                <span className="text-[10px] font-bold px-2 py-1 bg-white text-black uppercase tracking-wider mb-2 inline-block">
-                                    {project.category}
-                                </span>
-                                <h3 className="text-xl font-black text-white leading-none uppercase italic drop-shadow-lg">{project.title}</h3>
-                                </div>
+                                <div className="absolute inset-0 flex items-center justify-center z-20"><div className="w-16 h-16 bg-amber-500 rounded-full flex items-center justify-center scale-0 group-hover:scale-100 transition-transform duration-300 shadow-[0_0_30px_rgba(245,158,11,0.6)]"><Play fill="black" className="ml-1 text-black" size={24} /></div></div>
+                                <div className="absolute bottom-0 left-0 w-full p-6 translate-y-4 group-hover:translate-y-0 transition-transform duration-300 z-30"><span className="text-[10px] font-bold px-2 py-1 bg-white text-black uppercase tracking-wider mb-2 inline-block">{project.category}</span><h3 className="text-xl font-black text-white leading-none uppercase italic drop-shadow-lg">{project.title}</h3></div>
                             </div>
                         </div>
                         ))}
@@ -827,134 +529,51 @@
                     </div>
                 </section>
 
-                {/* 6. REVIEWS SECTION REMOVED */}
-
-                {/* 7. Cleaned Contact Section with WhatsApp */}
                 <section id="contact" className="py-32 px-6 bg-[#050505] relative overflow-hidden">
-                    {/* Background Pattern with Particle Effect */}
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent opacity-50"></div>
                     <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay"></div>
-
                     <div className="max-w-4xl mx-auto relative z-10 text-center">
-                    
                     <h2 className="text-6xl md:text-9xl font-black mb-8 tracking-tighter">LET'S <span className="text-amber-500">WORK.</span></h2>
-                    <p className="text-zinc-400 text-xl mb-12 max-w-2xl mx-auto">
-                        Ready to elevate your content? Connect with me directly on WhatsApp for the fastest response.
-                    </p>
-
+                    <p className="text-zinc-400 text-xl mb-12 max-w-2xl mx-auto">Ready to elevate your content? Connect with me directly on WhatsApp for the fastest response.</p>
                     <div className="flex flex-col items-center gap-8">
-                        
-                        {/* WhatsApp Status Indicator - FIXED & HIGHLIGHTED */}
                         <WhatsAppStatus />
-
-                        {/* Redesigned Compact WhatsApp Button */}
                         <div className="relative group cursor-pointer w-full max-w-xl">
                         <div className="absolute -inset-1 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl blur opacity-20 group-hover:opacity-60 transition duration-500"></div>
-                        
                         <a href="https://wa.me/94775035332" target="_blank" rel="noopener noreferrer" className="relative flex items-center justify-between bg-zinc-900/90 backdrop-blur-xl p-6 md:p-8 rounded-2xl border border-white/5 hover:border-green-500/50 transition-all group-hover:-translate-y-1">
-                            
-                            <div className="flex items-center gap-6">
-                                <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(34,197,94,0.3)] group-hover:scale-110 transition-transform duration-300">
-                                <MessageCircle size={32} className="text-white" fill="white" />
-                                </div>
-                                
-                                <div className="text-left">
-                                <h3 className="text-2xl md:text-3xl font-black text-white mb-1">WhatsApp Chat</h3>
-                                <p className="text-zinc-400 font-mono text-sm tracking-wide">+94 77 503 5332</p>
-                                </div>
-                            </div>
-                            
-                            <div className="hidden md:flex items-center justify-center w-12 h-12 rounded-full border border-white/10 group-hover:bg-green-500 group-hover:border-green-500 group-hover:text-black transition-all">
-                                <ArrowRight size={20} className="-rotate-45 group-hover:rotate-0 transition-transform duration-300" />
-                            </div>
+                            <div className="flex items-center gap-6"><div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(34,197,94,0.3)] group-hover:scale-110 transition-transform duration-300"><MessageCircle size={32} className="text-white" fill="white" /></div><div className="text-left"><h3 className="text-2xl md:text-3xl font-black text-white mb-1">WhatsApp Chat</h3><p className="text-zinc-400 font-mono text-sm tracking-wide">+94 77 503 5332</p></div></div>
+                            <div className="hidden md:flex items-center justify-center w-12 h-12 rounded-full border border-white/10 group-hover:bg-green-500 group-hover:border-green-500 group-hover:text-black transition-all"><ArrowRight size={20} className="-rotate-45 group-hover:rotate-0 transition-transform duration-300" /></div>
                         </a>
                         </div>
                     </div>
-
                     <div className="mt-20 flex justify-center gap-6 md:gap-10">
-                        {[
-                            { icon: Linkedin, href: "https://www.linkedin.com/in/kaveesha-nilukshana-68767b379?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app", color: "hover:text-[#0077b5] hover:shadow-[0_0_20px_rgba(0,119,181,0.5)]" },
-                            { icon: Instagram, href: "https://www.instagram.com/kaveesha.edits/", color: "hover:text-[#E1306C] hover:shadow-[0_0_20px_rgba(225,48,108,0.5)]" },
-                            { icon: Twitter, href: "https://x.com/kaveesha_editor", color: "hover:text-white hover:shadow-[0_0_20px_rgba(255,255,255,0.5)]" },
-                            { icon: Mail, href: "https://mail.google.com/mail/?view=cm&fs=1&to=nilukshanakaveesha@gmail.com", color: "hover:text-amber-500 hover:shadow-[0_0_20px_rgba(245,158,11,0.5)]" }
-                        ].map((social, i) => (
-                            <a 
-                                key={i}
-                                href={social.href}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className={`
-                                    group relative p-4 rounded-full bg-zinc-900 border border-white/5 
-                                    transition-all duration-300 hover:-translate-y-2 hover:border-white/20
-                                    ${social.color}
-                                `}
-                            >
-                                <social.icon size={24} className="transition-transform duration-300 group-hover:scale-110" />
-                                <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-20 transition-opacity duration-300 bg-current blur-md"></div>
-                            </a>
+                        {[{ icon: Linkedin, href: "https://www.linkedin.com/in/kaveesha-nilukshana-68767b379", color: "hover:text-[#0077b5]" }, { icon: Instagram, href: "https://www.instagram.com/kaveesha.edits/", color: "hover:text-[#E1306C]" }, { icon: Twitter, href: "https://x.com/kaveesha_editor", color: "hover:text-white" }, { icon: Mail, href: "https://mail.google.com/mail/?view=cm&fs=1&to=nilukshanakaveesha@gmail.com", color: "hover:text-amber-500" }].map((social, i) => (
+                            <a key={i} href={social.href} target="_blank" rel="noopener noreferrer" className={`group relative p-4 rounded-full bg-zinc-900 border border-white/5 transition-all duration-300 hover:-translate-y-2 hover:border-white/20 ${social.color}`}><social.icon size={24} className="transition-transform duration-300 group-hover:scale-110" /></a>
                         ))}
                     </div>
                     </div>
                 </section>
 
-                {/* Footer */}
-                <footer className="bg-black py-8 text-center text-zinc-800 text-xs uppercase tracking-widest border-t border-white/5">
-                    <p>&copy; 2025 Kaveesha Nilukshana.</p>
-                </footer>
+                <footer className="bg-black py-8 text-center text-zinc-800 text-xs uppercase tracking-widest border-t border-white/5"><p>&copy; 2025 Kaveesha Nilukshana.</p></footer>
                 
-                {/* Styles */}
                 <style>{`
-                    @keyframes scroll {
-                        0% { transform: translateX(0); }
-                        100% { transform: translateX(-50%); } /* Move half because we doubled the array */
-                    }
-                    .animate-scroll {
-                        animation: scroll 400s linear infinite; /* Changed from 60s to 400s */
-                    }
-                    @keyframes marquee {
-                    0% { transform: translateX(0); }
-                    100% { transform: translateX(-50%); }
-                    }
-                    .animate-marquee {
-                    animation: marquee 20s linear infinite;
-                    }
-                    @keyframes fade-in {
-                    from { opacity: 0; transform: translateY(20px); }
-                    to { opacity: 1; transform: translateY(0); }
-                    }
-                    .animate-fade-in {
-                    animation: fade-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-                    }
-                    @keyframes draw-graph {
-                    0% { stroke-dashoffset: 1000; stroke-dasharray: 1000; }
-                    100% { stroke-dashoffset: 0; stroke-dasharray: 1000; }
-                    }
-                    .animate-draw-graph {
-                    animation: draw-graph 2s ease-in-out forwards;
-                    }
-                    @keyframes float {
-                    0%, 100% { transform: translateY(0px); }
-                    50% { transform: translateY(-15px); }
-                    }
-                    .animate-float {
-                    animation: float 6s ease-in-out infinite;
-                    }
-                    @keyframes pulse-slow {
-                    0%, 100% { opacity: 0.2; transform: translate(-50%, -50%) scale(1); }
-                    50% { opacity: 0.3; transform: translate(-50%, -50%) scale(1.1); }
-                    }
-                    .animate-pulse-slow {
-                    animation: pulse-slow 4s ease-in-out infinite;
-                    }
-                    /* Hide Default Cursor */
-                    @media (min-width: 768px) {
-                    body {
-                        cursor: none;
-                    }
-                    a, button, input, textarea {
-                        cursor: none;
-                    }
-                    }
+                    @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+                    .animate-scroll { animation: scroll 400s linear infinite; }
+                    @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+                    .animate-marquee { animation: marquee 20s linear infinite; }
+                    @keyframes fade-in { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+                    .animate-fade-in { animation: fade-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+                    @keyframes draw-graph { 0% { stroke-dashoffset: 1000; stroke-dasharray: 1000; } 100% { stroke-dashoffset: 0; stroke-dasharray: 1000; } }
+                    .animate-draw-graph { animation: draw-graph 2s ease-in-out forwards; }
+                    @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-15px); } }
+                    .animate-float { animation: float 6s ease-in-out infinite; }
+                    @keyframes pulse-slow { 0%, 100% { opacity: 0.2; transform: translate(-50%, -50%) scale(1); } 50% { opacity: 0.3; transform: translate(-50%, -50%) scale(1.1); } }
+                    .animate-pulse-slow { animation: pulse-slow 4s ease-in-out infinite; }
+                    @keyframes blob { 0% { transform: translate(0px, 0px) scale(1); } 33% { transform: translate(30px, -50px) scale(1.1); } 66% { transform: translate(-20px, 20px) scale(0.9); } 100% { transform: translate(0px, 0px) scale(1); } }
+                    .animate-blob { animation: blob 7s infinite; }
+                    .animation-delay-2000 { animation-delay: 2s; } .animation-delay-4000 { animation-delay: 4s; }
+                    .animate-spin-ultra-slow { animation: spin 20s linear infinite; }
+                    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+                    @media (min-width: 768px) { body { cursor: none; } a, button, input, textarea { cursor: none; } }
                 `}</style>
                 </div>
             );
