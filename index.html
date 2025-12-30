@@ -77,7 +77,7 @@
             }
         }
         
-        /* Silver Metal Effect for VISUAL (Kept mostly same, slightly cooler tone) */
+        /* Silver Metal Effect for VISUAL */
         .text-cinematic-silver {
             background: linear-gradient(
                 110deg, 
@@ -94,7 +94,7 @@
             animation: shine-sweep 6s ease-in-out infinite, focus-in 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
 
-        /* Electric Blue Effect for ALCHEMY (Changed from Gold) */
+        /* Electric Blue Effect for ALCHEMY */
         .text-cinematic-blue {
             background: linear-gradient(
                 110deg, 
@@ -112,7 +112,7 @@
             animation-delay: 0s, 0.2s; /* Slight delay for focus */
         }
 
-        /* Ambient Glow behind text (Changed to Blue) */
+        /* Ambient Glow behind text */
         .ambient-text-glow {
             position: absolute;
             top: 50%;
@@ -149,8 +149,7 @@
             Play, Zap, CheckCircle2, Linkedin, Instagram, Twitter, Mail, 
             MessageCircle, Menu, X, ArrowRight, TrendingUp, Activity, 
             Sparkles, MousePointer2, Clock, Smartphone, Wifi, Send, 
-            BarChart3, Users, Quote, Star, Eye, Scissors, MonitorPlay, 
-            Music, Palette, Layers, Lightbulb, Trophy, Flame, Film, Disc
+            BarChart3, Users, Trophy, Flame
         } from 'lucide-react';
 
         // --- ADVANCED COMPONENT: Custom Magnetic Cursor ---
@@ -182,28 +181,7 @@
             );
         };
 
-        // --- NEW COMPONENT: Siri-like Glow Animation ---
-        const SiriGlow = () => {
-            return (
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[140%] pointer-events-none -z-10 mix-blend-screen opacity-70">
-                    <div className="relative w-full h-full animate-spin-ultra-slow">
-                        {/* Blob 1: Cyan/Blue (Siri Blue) */}
-                        <div className="absolute top-0 left-1/4 w-3/4 h-3/4 bg-cyan-500/30 rounded-full blur-[80px] animate-blob mix-blend-screen"></div>
-                        
-                        {/* Blob 2: Purple/Pink (Siri Purple) - Kept for depth */}
-                        <div className="absolute bottom-0 right-1/4 w-3/4 h-3/4 bg-indigo-500/30 rounded-full blur-[80px] animate-blob animation-delay-2000 mix-blend-screen"></div>
-                        
-                        {/* Blob 3: Blue (Brand Color integration - Changed from Amber) */}
-                        <div className="absolute top-1/3 left-1/3 w-2/3 h-2/3 bg-blue-500/20 rounded-full blur-[90px] animate-blob animation-delay-4000 mix-blend-screen"></div>
-                        
-                        {/* Core Glow */}
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1/2 h-1/2 bg-white/10 rounded-full blur-[60px] animate-pulse"></div>
-                    </div>
-                </div>
-            );
-        };
-
-        // --- NEW COMPONENT: Video Player Modal ---
+        // --- COMPONENT: Video Player Modal ---
         const VideoModal = ({ videoId, onClose }) => {
             if (!videoId) return null;
 
@@ -278,7 +256,6 @@
                     }
 
                     draw() {
-                        // Changed to Blue
                         ctx.fillStyle = 'rgba(59, 130, 246, 0.4)';
                         ctx.beginPath();
                         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
@@ -304,7 +281,6 @@
                             const distance = Math.sqrt(dx * dx + dy * dy);
                             if (distance < connectionDistance) {
                                 ctx.beginPath();
-                                // Blue connection lines
                                 ctx.strokeStyle = `rgba(59, 130, 246, ${0.2 * (1 - distance / connectionDistance)})`;
                                 ctx.lineWidth = 0.6;
                                 ctx.moveTo(particles[i].x, particles[i].y);
@@ -330,7 +306,7 @@
             return <canvas ref={canvasRef} className="fixed inset-0 z-0 opacity-40 pointer-events-none" />;
         };
 
-        // --- COMPONENT: 3D Pixel 10 Pro with Scroll Animation ---
+        // --- COMPONENT: 3D Pixel 10 Pro XL (Ultra Realistic) ---
         const PixelPhone = () => {
             const phoneRef = useRef(null);
             const [transformStyle, setTransformStyle] = useState({});
@@ -341,31 +317,17 @@
                     
                     const rect = phoneRef.current.getBoundingClientRect();
                     const windowHeight = window.innerHeight;
-                    const windowWidth = window.innerWidth;
                     
-                    // Calculate progress (0 when entering bottom, 1 when leaving top)
-                    // We adjust offsets to ensure the rotation happens clearly within view
                     const elementCenter = rect.top + rect.height / 2;
                     const viewportCenter = windowHeight / 2;
-                    
-                    // Normalized distance from center (-1 to 1 range roughly)
                     const distFromCenter = (elementCenter - viewportCenter) / (windowHeight);
                     
-                    // ROTATION LOGIC:
-                    // When at bottom (dist > 0): Show Back
-                    // When at center (dist ~ 0): Show Front
-                    // When at top (dist < 0): Show Back
-                    // This creates a spin effect as you scroll past it.
-                    
-                    // Multiply by 180 to get full rotation range (+90 to -90 would be half)
-                    // We want full spin roughly -180 to 180 range
-                    const rotationY = distFromCenter * 280; 
-                    
-                    // Slight X tilt for realism
-                    const rotationX = distFromCenter * 20;
+                    // 360 Spin Rotation
+                    const rotationY = distFromCenter * 200; 
+                    const rotationX = distFromCenter * 15;
 
                     setTransformStyle({
-                        transform: `perspective(1500px) rotateY(${rotationY}deg) rotateX(${rotationX}deg)`,
+                        transform: `perspective(2500px) rotateY(${rotationY}deg) rotateX(${rotationX}deg)`,
                     });
                 };
 
@@ -376,212 +338,192 @@
             }, []);
 
             return (
-                <div className="w-full h-[800px] flex items-center justify-center py-20 perspective-[1500px] overflow-visible">
+                <div className="w-full h-[850px] flex items-center justify-center py-20 perspective-[2500px] overflow-visible">
                     <div 
                         ref={phoneRef}
-                        className="relative w-[320px] h-[640px] transition-transform duration-75 ease-linear"
+                        className="relative w-[340px] h-[720px] transition-transform duration-75 ease-linear"
                         style={{
                             transformStyle: 'preserve-3d',
                             ...transformStyle
                         }}
                     >
-                        {/* --- FILLER LAYERS (For 3D Thickness) --- */}
-                        {/* We use multiple layers to simulate solid sides */}
-                        {[...Array(16)].map((_, i) => (
+                        {/* --- TITANIUM FRAME (Polished Sides) --- */}
+                        {/* Multiple layers for thickness (Pixel 10 Pro XL is thick) */}
+                        {[...Array(24)].map((_, i) => (
                             <div 
                                 key={i} 
-                                className="absolute inset-0 bg-[#2d2d2d] rounded-[48px] border border-[#1a1a1a]" 
+                                className="absolute inset-0 rounded-[56px]" 
                                 style={{ 
-                                    transform: `translateZ(${-8 + i}px)`,
+                                    transform: `translateZ(${-12 + i}px)`,
+                                    background: i === 0 || i === 23 
+                                        ? '#0d0d0d' 
+                                        : 'linear-gradient(90deg, #1c1c1c 0%, #3a3a3a 20%, #666 50%, #3a3a3a 80%, #1c1c1c 100%)', 
                                     width: '100%',
-                                    height: '100%'
+                                    height: '100%',
+                                    border: '1px solid rgba(255,255,255,0.02)' 
                                 }}
                             ></div>
                         ))}
 
-                        {/* --- BACK FACE (Camera Side) --- */}
+                        {/* --- BACK FACE (Matte Glass Finish) --- */}
                         <div 
-                            className="absolute inset-0 bg-[#121212] rounded-[48px] border-[2px] border-[#333] shadow-2xl overflow-hidden"
+                            className="absolute inset-0 bg-[#0a0a0a] rounded-[56px] shadow-[0_20px_60px_rgba(0,0,0,0.8)] overflow-hidden"
                             style={{ 
-                                transform: 'rotateY(180deg) translateZ(10px)', 
-                                backfaceVisibility: 'hidden' 
+                                transform: 'rotateY(180deg) translateZ(12px)', 
+                                backfaceVisibility: 'hidden',
+                                background: 'radial-gradient(150% 150% at 50% 0%, #1f1f1f 0%, #050505 100%)' 
                             }}
                         >
-                            {/* Matte Texture */}
-                            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay"></div>
+                            {/* Texture */}
+                            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.05]"></div>
                             
-                            {/* Camera Visor (Pixel Style) */}
-                            <div className="absolute top-8 left-0 w-full h-28 bg-[#080808] border-y border-[#333] flex items-center justify-between px-6 shadow-lg z-20">
-                                {/* Metallic Highlight on Visor */}
-                                <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none"></div>
+                            {/* PIXEL 10 PRO CAMERA ISLAND (Floating Pill) */}
+                            {/* This is the distinct Pixel 10 look: Detached from edges, pill shape */}
+                            <div className="absolute top-12 left-1/2 -translate-x-1/2 w-[90%] h-32 bg-[#080808] rounded-[36px] border-[1px] border-[#333] shadow-[0_15px_40px_rgba(0,0,0,0.8)] z-20 flex items-center justify-center overflow-hidden">
                                 
-                                <div className="flex items-center gap-5">
-                                    {/* Main Lens */}
-                                    <div className="w-14 h-14 rounded-full bg-[#050505] border border-[#222] relative flex items-center justify-center shadow-inner">
-                                        <div className="w-8 h-8 rounded-full bg-[#1a1a1a] border border-[#333] relative overflow-hidden">
-                                            <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-sm"></div>
+                                {/* Metallic Texture on Island */}
+                                <div className="absolute inset-0 bg-gradient-to-br from-[#1c1c1c] via-[#050505] to-[#000]"></div>
+                                
+                                {/* Inner Black Pill (The Visor) */}
+                                <div className="relative w-[92%] h-[76%] bg-black rounded-[26px] border border-[#222] shadow-inner flex items-center justify-between px-3">
+                                    
+                                    {/* Camera Lens Cluster */}
+                                    <div className="flex-1 flex items-center justify-around gap-1">
+                                        
+                                        {/* Main Lens (50MP) - Big */}
+                                        <div className="w-16 h-16 rounded-full bg-[#0a0a0a] border border-[#222] relative flex items-center justify-center shadow-[inset_0_0_15px_black]">
+                                            <div className="w-10 h-10 rounded-full bg-[#050505] border border-[#333] relative overflow-hidden flex items-center justify-center">
+                                                <div className="w-5 h-5 rounded-full bg-[#000] border border-[#111] shadow-[0_0_10px_rgba(59,130,246,0.4)]"></div>
+                                                {/* Blue coating reflection */}
+                                                <div className="absolute inset-0 bg-gradient-to-tr from-blue-600/20 to-transparent"></div>
+                                            </div>
+                                            <div className="absolute top-3 left-3 w-2 h-1 bg-white/60 rounded-full blur-[1px] rotate-[-45deg]"></div>
                                         </div>
-                                        {/* Lens reflection */}
-                                        <div className="absolute top-3 left-3 w-3 h-3 bg-white/40 rounded-full blur-[1px]"></div>
+
+                                        {/* Ultra Wide - Medium */}
+                                        <div className="w-14 h-14 rounded-full bg-[#0a0a0a] border border-[#222] relative flex items-center justify-center shadow-[inset_0_0_15px_black]">
+                                            <div className="w-8 h-8 rounded-full bg-[#050505] border border-[#333] relative overflow-hidden flex items-center justify-center">
+                                                <div className="w-4 h-4 rounded-full bg-[#000]"></div>
+                                                <div className="absolute inset-0 bg-gradient-to-tr from-purple-600/10 to-transparent"></div>
+                                            </div>
+                                            <div className="absolute top-3 left-3 w-1.5 h-1 bg-white/40 rounded-full blur-[1px]"></div>
+                                        </div>
+
+                                        {/* Periscope Telephoto - Rectangular housing */}
+                                        <div className="w-14 h-14 rounded-full bg-[#0a0a0a] border border-[#222] relative flex items-center justify-center shadow-[inset_0_0_15px_black]">
+                                            <div className="w-7 h-5 bg-[#080808] border border-[#333] rounded-md relative overflow-hidden shadow-inner">
+                                                <div className="absolute inset-0 bg-black opacity-80"></div>
+                                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-[#111] rounded-full"></div>
+                                            </div>
+                                        </div>
+
                                     </div>
-                                    
-                                    {/* Ultra Wide Lens */}
-                                    <div className="w-14 h-14 rounded-full bg-[#050505] border border-[#222] relative flex items-center justify-center shadow-inner">
-                                        <div className="w-8 h-8 rounded-full bg-[#1a1a1a] border border-[#333]"></div>
-                                    </div>
-                                    
-                                    {/* Flash / Sensors */}
-                                    <div className="flex flex-col gap-2 ml-2">
-                                        <div className="w-3 h-3 bg-[#333] rounded-full"></div>
-                                        <div className="w-3 h-3 bg-[#222] rounded-full border border-[#444]"></div>
+
+                                    {/* Sensors / Flash */}
+                                    <div className="flex flex-col items-center gap-2 pl-3 border-l border-[#222]">
+                                        <div className="w-3 h-3 bg-[#fff] rounded-full shadow-[0_0_10px_white] opacity-80"></div>
+                                        <div className="w-2 h-2 bg-[#222] rounded-full border border-[#444]"></div>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* "G" Logo Placeholder */}
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-20">
-                                <div className="w-10 h-10 border-4 border-white rounded-full flex items-center justify-center font-bold text-white text-xl">G</div>
-                            </div>
-                            
-                            {/* Bottom regulatory text lines */}
-                            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col gap-1 opacity-20">
-                                <div className="w-32 h-0.5 bg-white"></div>
-                                <div className="w-20 h-0.5 bg-white mx-auto"></div>
+                            {/* Minimal G Logo */}
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 mt-20 opacity-30 mix-blend-overlay">
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="white">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10H12v4h6.09c-.89 2.45-3.23 4.2-6.09 4.2-3.87 0-7-3.13-7-7s3.13-7 7-7c1.93 0 3.68.79 4.94 2.06l3-3C17.9 3.09 15.11 2 12 2z" />
+                                </svg>
                             </div>
                         </div>
 
-
-                        {/* --- FRONT FACE (Screen Side) --- */}
+                        {/* --- FRONT FACE (Screen) --- */}
                         <div 
-                            className="absolute inset-0 bg-black rounded-[45px] border-[6px] border-[#2a2a2a] shadow-[0_0_60px_rgba(59,130,246,0.15)] overflow-hidden z-20"
+                            className="absolute inset-0 bg-black rounded-[56px] overflow-hidden z-20"
                             style={{ 
-                                transform: 'rotateY(0deg) translateZ(10px)', 
-                                backfaceVisibility: 'hidden' 
+                                transform: 'rotateY(0deg) translateZ(12px)', 
+                                backfaceVisibility: 'hidden',
+                                boxShadow: 'inset 0 0 0 3px #111, 0 0 40px rgba(0,0,0,0.5)' // Micro bezel
                             }}
                         >
                             
-                            {/* Metallic Bezel Highlight */}
-                            <div className="absolute inset-0 border border-white/10 rounded-[39px] pointer-events-none z-30"></div>
-                            
-                            {/* Pixel 10 Pro Camera Pill (Centered) */}
-                            <div className="absolute top-4 left-1/2 -translate-x-1/2 w-28 h-7 bg-black rounded-full z-40 flex items-center justify-center px-2">
-                                {/* Lens */}
-                                <div className="w-3 h-3 rounded-full bg-[#0f0f0f] border border-[#1a1a1a] shadow-inner mr-3"></div>
-                                <div className="w-2 h-2 rounded-full bg-[#111]"></div>
+                            {/* Front Camera (Punch Hole) */}
+                            <div className="absolute top-6 left-1/2 -translate-x-1/2 w-4 h-4 bg-black rounded-full z-40 flex items-center justify-center ring-1 ring-[#222]">
+                                <div className="w-2 h-2 rounded-full bg-[#0a0a0a] shadow-[inset_0_0_4px_rgba(255,255,255,0.2)]"></div>
                             </div>
 
-                            {/* Screen Content */}
-                            <div className="w-full h-full bg-[#050505] pt-16 px-6 flex flex-col relative">
+                            {/* Screen Display */}
+                            <div className="w-full h-full bg-[#000] pt-16 px-6 flex flex-col relative">
                                 
-                                {/* Status Bar Time */}
-                                <div className="absolute top-5 left-8 text-xs font-bold text-white">10:00</div>
-                                <div className="absolute top-5 right-8 flex gap-1">
-                                    <Wifi size={12} className="text-white"/>
-                                    <div className="w-4 h-3 bg-white rounded-[2px] border border-white relative">
+                                {/* Status Bar */}
+                                <div className="absolute top-6 left-8 text-xs font-bold text-white/90">10:00</div>
+                                <div className="absolute top-6 right-8 flex gap-1.5 opacity-90">
+                                    <Wifi size={14} className="text-white"/>
+                                    <div className="w-5 h-3 bg-white rounded-[2px] border border-white relative">
                                         <div className="absolute top-0.5 right-0.5 bottom-0.5 left-0.5 bg-black"></div>
                                         <div className="absolute top-0.5 right-0.5 bottom-0.5 left-1 bg-white"></div>
                                     </div>
                                 </div>
 
-                                {/* Analytics Header */}
-                                <div className="flex justify-between items-center mb-8">
+                                {/* Content: Dashboard */}
+                                <div className="flex justify-between items-center mb-6 mt-4">
                                     <div>
                                         <h3 className="text-blue-500 text-[10px] font-bold uppercase tracking-widest mb-1">Live Analytics</h3>
-                                        <div className="text-white font-black text-2xl tracking-tight">Dashboard</div>
+                                        <div className="text-white font-black text-2xl tracking-tight">Overview</div>
                                     </div>
-                                    <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center animate-pulse">
-                                        <BarChart3 size={18} className="text-blue-500" />
+                                    <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center shadow-[0_0_20px_rgba(37,99,235,0.4)]">
+                                        <BarChart3 size={18} className="text-white" />
                                     </div>
                                 </div>
 
-                                {/* Main Graph Card */}
-                                <div className="bg-zinc-900/40 backdrop-blur-md rounded-3xl p-5 border border-white/5 mb-6 shadow-xl relative overflow-hidden group">
-                                    {/* Glass reflection */}
-                                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/5 to-transparent pointer-events-none"></div>
+                                {/* Graph Card */}
+                                <div className="bg-[#111] rounded-3xl p-5 border border-white/5 mb-5 relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-white/5 to-transparent pointer-events-none"></div>
 
                                     <div className="flex justify-between items-end mb-4 relative z-10">
                                         <div>
                                             <div className="text-zinc-500 text-xs font-medium mb-1">Retention Rate</div>
                                             <div className="text-4xl font-black text-white tracking-tighter">84.2%</div>
                                         </div>
-                                        <div className="flex items-center gap-1 text-green-400 text-xs font-bold bg-green-500/10 px-2 py-1.5 rounded-lg border border-green-500/10">
-                                            <TrendingUp size={12} /> +12.4%
+                                        <div className="flex items-center gap-1 text-green-400 text-xs font-bold bg-green-500/10 px-2 py-1.5 rounded-lg">
+                                            <TrendingUp size={12} /> +12%
                                         </div>
                                     </div>
                                     
-                                    {/* Graph Area */}
-                                    <div className="h-44 w-full relative">
-                                        {/* Grid */}
-                                        <div className="absolute inset-0 flex flex-col justify-between opacity-5">
-                                            <div className="w-full h-px bg-white"></div>
-                                            <div className="w-full h-px bg-white"></div>
-                                            <div className="w-full h-px bg-white"></div>
-                                            <div className="w-full h-px bg-white"></div>
-                                            <div className="w-full h-px bg-white"></div>
-                                        </div>
-
-                                        {/* Graph Line */}
-                                        <svg className="absolute inset-0 w-full h-full overflow-visible drop-shadow-[0_0_20px_rgba(59,130,246,0.4)]" preserveAspectRatio="none" viewBox="0 0 100 100">
+                                    {/* Graph */}
+                                    <div className="h-32 w-full relative">
+                                        <svg className="absolute inset-0 w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 100">
                                             <defs>
-                                                <linearGradient id="blueGradient" x1="0" y1="0" x2="1" y2="0">
-                                                <stop offset="0%" stopColor="#3b82f6" stopOpacity="1" />
-                                                <stop offset="50%" stopColor="#60a5fa" stopOpacity="1" />
-                                                <stop offset="100%" stopColor="#93c5fd" stopOpacity="1" />
-                                                </linearGradient>
-                                                <linearGradient id="fillGradient" x1="0" y1="0" x2="0" y2="1">
+                                                <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
                                                 <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.2" />
                                                 <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
                                                 </linearGradient>
                                             </defs>
-                                            
-                                            {/* Fill area under curve */}
-                                            <path 
-                                                d="M0,10 C30,10, 50,30, 100,20 V100 H0 Z" 
-                                                fill="url(#fillGradient)" 
-                                            />
-
-                                            {/* The Line */}
-                                            <path 
-                                            d="M0,10 C30,10, 50,30, 100,20" 
-                                            fill="none" 
-                                            stroke="url(#blueGradient)" 
-                                            strokeWidth="5" 
-                                            strokeLinecap="round" 
-                                            strokeLinejoin="round"
-                                            />
-                                            
-                                            {/* Interactive Dot */}
-                                            <circle cx="100" cy="20" r="5" fill="#fff" className="animate-pulse shadow-[0_0_10px_white]" />
+                                            <path d="M0,40 C30,40, 50,10, 100,20 V100 H0 Z" fill="url(#chartFill)" />
+                                            <path d="M0,40 C30,40, 50,10, 100,20" fill="none" stroke="#3b82f6" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                                            <circle cx="100" cy="20" r="4" fill="#fff" className="animate-pulse shadow-[0_0_10px_white]" />
                                         </svg>
                                     </div>
-                                    <div className="text-[10px] text-zinc-500 mt-2 text-center font-mono uppercase tracking-wider">Avg. View Duration: 2:45</div>
                                 </div>
 
-                                {/* Bottom Stat Cards */}
+                                {/* Stat Cards */}
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div className="bg-zinc-900/40 p-4 rounded-2xl border border-white/5 backdrop-blur-sm">
-                                        <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center mb-3">
-                                            <Users size={14} className="text-white" />
-                                        </div>
+                                    <div className="bg-[#111] p-4 rounded-2xl border border-white/5">
                                         <div className="text-xl font-bold text-white">45.2K</div>
                                         <div className="text-[10px] text-zinc-500 uppercase tracking-wide font-bold">New Subs</div>
                                     </div>
-                                    <div className="bg-zinc-900/40 p-4 rounded-2xl border border-white/5 backdrop-blur-sm">
-                                        <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center mb-3">
-                                            <Activity size={14} className="text-white" />
-                                        </div>
+                                    <div className="bg-[#111] p-4 rounded-2xl border border-white/5">
                                         <div className="text-xl font-bold text-white">98%</div>
                                         <div className="text-[10px] text-zinc-500 uppercase tracking-wide font-bold">Sentiment</div>
                                     </div>
                                 </div>
 
                                 {/* Navigation Bar */}
-                                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 bg-white/20 rounded-full backdrop-blur-md"></div>
+                                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-32 h-1 bg-zinc-600 rounded-full"></div>
                             </div>
+                            
+                            {/* Realistic Screen Gloss Reflection */}
+                            <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent pointer-events-none opacity-40"></div>
                         </div>
 
-                        {/* Back Glow Effect */}
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-blue-500/20 blur-[80px] -z-10 rounded-full"></div>
                     </div>
                 </div>
             );
@@ -604,8 +546,6 @@
                 const totalMinutes = hour * 60 + minute;
                 
                 // 6:30 AM = 390 minutes
-                // 12:00 AM (Midnight) = End of day (effectively)
-                // Logic: If time is >= 6:30 AM (390 mins) AND < Midnight
                 const isOnline = totalMinutes >= 390; 
                 
                 setStatus(isOnline ? 'online' : 'offline');
@@ -630,12 +570,10 @@
                     ? 'bg-green-950/30 border-green-500/30 shadow-[0_0_15px_rgba(34,197,94,0.15)]' 
                     : 'bg-zinc-900/80 border-zinc-800 opacity-70'}
                 `}>
-                {/* Pulse Animation Background for Online */}
                 {status === 'online' && (
                     <div className="absolute inset-0 bg-green-500/5 animate-pulse"></div>
                 )}
 
-                {/* Indicator Dot */}
                 <div className="relative">
                     <div className={`w-2.5 h-2.5 rounded-full ${status === 'online' ? 'bg-green-500' : 'bg-zinc-500'}`}></div>
                     {status === 'online' && (
@@ -646,7 +584,6 @@
                     )}
                 </div>
 
-                {/* Text Info */}
                 <div className="flex flex-col text-left">
                     <span className={`text-[10px] font-black uppercase tracking-widest leading-none ${status === 'online' ? 'text-green-400' : 'text-zinc-500'}`}>
                     {status === 'online' ? 'Online' : 'Offline'}
@@ -666,10 +603,12 @@
             
             // Mouse for Global Spotlight
             const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+            
+            // Added heroRef definition to fix the ReferenceError
+            const heroRef = useRef(null);
 
             useEffect(() => {
                 const handleMouseMove = (e) => {
-                    // Update coordinates to be global (fixed position)
                     setMousePos({
                         x: e.clientX,
                         y: e.clientY
@@ -679,7 +618,6 @@
                 return () => window.removeEventListener('mousemove', handleMouseMove);
             }, []);
 
-            // Handle Scroll
             useEffect(() => {
                 const handleScroll = () => setIsScrolled(window.scrollY > 50);
                 window.addEventListener('scroll', handleScroll);
@@ -713,7 +651,7 @@
                 {/* 0. Custom Cursor */}
                 <CustomCursor />
 
-                {/* 1. GLOBAL SPOTLIGHT EFFECT (Moved here to be visible everywhere) */}
+                {/* 1. GLOBAL SPOTLIGHT EFFECT */}
                 <div 
                     className="fixed inset-0 pointer-events-none z-0 transition-opacity duration-300"
                     style={{
@@ -724,7 +662,7 @@
                 {/* VIDEO MODAL OVERLAY */}
                 {selectedVideo && <VideoModal videoId={selectedVideo} onClose={() => setSelectedVideo(null)} />}
 
-                {/* 2. Neural Network Background */}
+                {/* 1. Neural Network Background */}
                 <NeuralBackground />
 
                 {/* Cinematic Noise Overlay */}
@@ -782,7 +720,7 @@
                 )}
 
                 {/* 2. Hero Section (ADVANCED & IMMERSIVE) */}
-                <header className="relative min-h-screen flex flex-col items-center justify-center pt-20 px-6 overflow-hidden">
+                <header ref={heroRef} className="relative min-h-screen flex flex-col items-center justify-center pt-20 px-6 overflow-hidden">
                     
                     {/* Note: Moved dynamic spotlight to Global level above */}
 
